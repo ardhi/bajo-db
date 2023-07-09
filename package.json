@@ -1,0 +1,30 @@
+{
+  "name": "bajo-db",
+  "version": "0.0.1",
+  "description": "Database for Bajo Framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ardhi/bajo-db.git"
+  },
+  "keywords": [
+    "database",
+    "db",
+    "orm",
+    "bajo",
+    "framework"
+  ],
+  "author": "Ardhi Lukianto <ardhi@lukianto.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ardhi/bajo-db/issues"
+  },
+  "homepage": "https://github.com/ardhi/bajo-db#readme",
+  "dependencies": {
+    "knex": "^2.4.2"
+  }
+}
