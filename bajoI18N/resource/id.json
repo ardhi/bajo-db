@@ -1,5 +1,8 @@
 {
   "[%s] '%s' is connected": "[%s] '%s' telah tersambung",
   "[%s] Error on '%s': %s": "[%s] Kesalahan pada '%s': %s",
-  "[%s] '%s' is destroyed": "[%s] '%s' telah dimusnahkan"
+  "[%s] '%s' is destroyed": "[%s] '%s' telah dimusnahkan",
+  "[%s] Loaded schemas: %s": "[%s] Skema termuat: %s",
+  "[%s] Load schema: %s (%d)": "[%s] Muat skema: %s (%d)",
+  "[%s] Loaded connections: %s": "[%s] Koneksi termuat: %s"
 }
