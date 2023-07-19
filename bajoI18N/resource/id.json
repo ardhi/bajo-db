@@ -1,3 +1,5 @@
 {
-  "Unknown db type '%s'": "Tipe db '%s' tidak dikenal"
+  "[%s] '%s' is connected": "[%s] '%s' telah tersambung",
+  "[%s] Error on '%s': %s": "[%s] Kesalahan pada '%s': %s",
+  "[%s] '%s' is destroyed": "[%s] '%s' telah dimusnahkan"
 }
