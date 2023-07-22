@@ -9,7 +9,8 @@ const dbTypes = [
   { name: 'pgnative', driver: 'knex' },
   { name: 'postgres', driver: 'knex' },
   { name: 'redshift', driver: 'knex' },
-  { name: 'sqlite3', driver: 'knex' }
+  { name: 'sqlite3', driver: 'knex' },
+  { name: 'memory', driver: 'mingo' }
 ]
 
 export default dbTypes

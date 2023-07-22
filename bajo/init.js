@@ -2,7 +2,7 @@ import collectSchema from '../lib/collector/schema.js'
 import schemaSanitizer from '../lib/sanitizer/schema.js'
 
 async function handler ({ item, index, options }) {
-  const { importPkg, fatal, importModule, print, freeze, log } = this.bajo.helper
+  const { importPkg, fatal, importModule, print, log } = this.bajo.helper
   const { dbTypes } = this.bajoDb.helper
   const { has, find, map } = await importPkg('lodash-es')
   const fs = await importPkg('fs-extra')
@@ -17,18 +17,19 @@ async function handler ({ item, index, options }) {
   result.driver = type.driver
   this.bajoDb.connections = this.bajoDb.connections || []
   this.bajoDb.connections.push(result)
-  freeze(this.bajoDb.connections)
   log.debug('Loaded connections: %s', map(this.bajoDb.connections, 'name').join(', '))
 }
 
 async function init () {
-  const { buildCollections, log, print, eachPlugins, importPkg } = this.bajo.helper
+  const { buildCollections, log, print, eachPlugins, importPkg, freeze } = this.bajo.helper
   const { isEmpty } = await importPkg('lodash-es')
   const conns = await buildCollections({ handler, dupChecks: ['name'] })
+  freeze(this.bajoDb.connections)
   if (conns.length === 0) log.warn('No %s found!', print.__('connection'))
+  this.bajoDb.schemas = []
   const result = await eachPlugins(collectSchema, { glob: 'schema/*.*' })
   if (isEmpty(result)) log.warn('No %s found!', print.__('schema'))
-  else this.bajoDb.schemas = await schemaSanitizer.call(this, result)
+  else await schemaSanitizer.call(this, result)
 }
 
 export default init

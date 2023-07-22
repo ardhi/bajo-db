@@ -1,4 +1,19 @@
 {
   "connections": [],
-  "dependencies": []
+  "dependencies": [],
+  "defaults": {
+    "property": {
+      "text": {
+        "kind": "text"
+      },
+      "string": {
+        "length": 50
+      }
+    },
+    "filter": {
+      "limit": 25,
+      "maxLimit": 200,
+      "sort": ["updatedAt:-1", "updated_at:-1", "createdAt:-1", "createdAt:-1", "username", "name"]
+    }
+  }
 }
