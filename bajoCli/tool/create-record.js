@@ -36,7 +36,7 @@ async function createRecord (path, args) {
     print.fatal('Invalid payload syntax')
   }
   console.log(boxen(JSON.stringify(payload, null, 2), { title: schema, padding: 0.5, borderStyle: 'round' }))
-  await postProcess.call(this, { handler: 'createRecord', params: [schema, payload], path, processMsg: 'Creating record' })
+  await postProcess.call(this, { handler: 'recordCreate', params: [schema, payload], path, processMsg: 'Creating record' })
 }
 
 export default createRecord
