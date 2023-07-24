@@ -42,7 +42,7 @@ async function updateRecord (path, args) {
     print.fatal('Invalid payload syntax')
   }
   console.log(boxen(JSON.stringify(payload, null, 2), { title: schema, padding: 0.5, borderStyle: 'round' }))
-  await postProcess.call(this, { handler: 'updateRecord', params: [schema, id, payload], path, processMsg: 'Updating record' })
+  await postProcess.call(this, { handler: 'recordUpdate', params: [schema, id, payload], path, processMsg: 'Updating record' })
 }
 
 export default updateRecord

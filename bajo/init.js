@@ -1,9 +1,9 @@
 import collectDrivers from '../lib/collect-drivers.js'
-import collectSchema from '../lib/collector/schema.js'
-import schemaSanitizer from '../lib/sanitizer/schema.js'
+import collectSchema from '../lib/collect-schema.js'
+import sanitizeSchema from '../lib/sanitize-schema.js'
 
 const sanitizer = {}
-async function defSanitizer ({ connection }) {
+async function defSanitizer (connection) {
   return connection
 }
 
@@ -22,7 +22,7 @@ async function handler ({ item, index, options }) {
     if (fs.existsSync(file)) sanitizer[type.provider] = await importModule(file)
     else sanitizer[type.provider] = defSanitizer
   }
-  const result = await sanitizer[type.provider].call(this, { connection: conn, options })
+  const result = await sanitizer[type.provider].call(this, conn)
   result.driver = type.driver
   return result
 }
@@ -38,7 +38,7 @@ async function init () {
   this.bajoDb.schemas = []
   const result = await eachPlugins(collectSchema, { glob: 'schema/*.*' })
   if (isEmpty(result)) log.warn('No %s found!', print.__('schema'))
-  else await schemaSanitizer.call(this, result)
+  else await sanitizeSchema.call(this, result)
 }
 
 export default init

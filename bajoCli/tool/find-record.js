@@ -22,7 +22,7 @@ async function findRecord (path, args) {
   const filter = pick(config, ['page', 'offset', 'pageSize', 'sort'])
   filter.pageSize = filter.pageSize || filter.limit
   filter.query = query
-  await postProcess.call(this, { noConfirm: true, handler: 'findRecord', params: [schema, filter], path, processMsg: 'Finding record(s)' })
+  await postProcess.call(this, { noConfirm: true, handler: 'recordFind', params: [schema, filter], path, processMsg: 'Finding record(s)' })
 }
 
 export default findRecord

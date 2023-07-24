@@ -19,7 +19,7 @@ async function removeRecord (path, args) {
       validate: text => isEmpty(text) ? print.__('ID is required') : true
     })
   }
-  await postProcess.call(this, { handler: 'removeRecord', params: [schema, id], path, processMsg: 'Removing record' })
+  await postProcess.call(this, { handler: 'recordRemove', params: [schema, id], path, processMsg: 'Removing record' })
 }
 
 export default removeRecord

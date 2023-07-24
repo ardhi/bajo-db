@@ -1,8 +1,11 @@
 import net from 'net'
+import os from 'os'
+import path from 'path'
 
 async function start (noRebuild) {
-  const { getConfig, importPkg, importModule, log } = this.bajo.helper
+  const { getConfig, importPkg, importModule, log, generateId } = this.bajo.helper
   const { find, filter } = await importPkg('lodash-es')
+  const config = getConfig()
   // this.bajoDb.instances = []
   for (const c of (this.bajoDb.connections || [])) {
     const driver = find(this.bajoDb.drivers, { driver: c.driver, type: c.type })
@@ -18,8 +21,9 @@ async function start (noRebuild) {
     */
   }
 
+  this.bajoDb.socket = os.platform() === 'win32' ? path.join('\\\\?\\pipe', path.resolve(config.dir.tmp), 'bajoDb', generateId()) : path.join(config.dir.tmp, 'bajoDb', generateId())
   this.bajoDb.instance = net.createServer()
-  this.bajoDb.instance.listen()
+  this.bajoDb.instance.listen(this.bajoDb.socket)
 }
 
 export default start
