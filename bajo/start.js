@@ -11,7 +11,7 @@ async function start (noRebuild) {
     const driver = find(this.bajoDb.drivers, { driver: c.driver, type: c.type })
     const opts = getConfig(driver.provider, { full: true })
     const schemas = filter(this.bajoDb.schemas, { connection: c.name })
-    const mod = await importModule(`${opts.dir}/bajoDb/instancing.js`)
+    const mod = await importModule(`${opts.dir}/bajoDb/boot/instantiation.js`)
     await mod.call(this, { connection: c, noRebuild, schemas })
     log.trace('Driver \'%s@%s\' instantiated', c.driver, c.name)
     /*

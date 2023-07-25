@@ -2,16 +2,20 @@ import nql from '@tryghost/nql'
 import mongoKnex from '@tryghost/mongo-knex'
 
 async function prepPagination (filter = {}, schema) {
-  const { getConfig, importPkg } = this.bajo.helper
-  const { map, trim, isString, each, isPlainObject, isEmpty } = await importPkg('lodash-es')
+  const { getConfig, importPkg, error } = this.bajo.helper
+  const lo = await importPkg('lodash-es')
+  const _filter = lo.filter
+  const { map, trim, isString, each, isPlainObject, isEmpty, xor, keys } = lo
   const opts = getConfig('bajoDb')
   // query
   let query
   if (!isEmpty(filter.query)) {
-    let q
-    if (isPlainObject(filter.query)) q = qb => mongoKnex(qb, filter.query)
-    else if (trim(filter.query).startsWith('{')) q = qb => mongoKnex(qb, JSON.parse(filter.query))
-    query = q ? { querySQL: q, toJSON: () => q } : nql(filter.query)
+    if (isPlainObject(filter.query)) {
+      query = { querySQL: qb => mongoKnex(qb, filter.query), toJSON: () => (filter.query) }
+    } else if (trim(filter.query).startsWith('{')) {
+      const parsed = JSON.parse(filter.query)
+      query = { querySQL: qb => mongoKnex(qb, parsed), toJSON: () => (parsed) }
+    } else query = nql(filter.query)
   }
   // limit
   let limit = parseInt(filter.limit) || opts.defaults.filter.limit
@@ -50,6 +54,10 @@ async function prepPagination (filter = {}, schema) {
       })
       sort = item
     }
+    const indexes = map(_filter(schema.properties, p => !!p.index), 'name')
+    const items = keys(sort)
+    const diff = xor(indexes, items)
+    if (diff.length > 0) throw error('Sort on unindexed fields: \'%s\'', diff.join(', '))
   }
 
   return { limit, page, skip, query, sort }
