@@ -1,6 +1,6 @@
 import postProcess from './lib/post-process.js'
 
-async function removeRecord (path, args) {
+async function removeRecord (path, args, options) {
   const { importPkg, print } = this.bajo.helper
   const { isEmpty, map, get } = await importPkg('lodash-es')
   const [input, select] = await importPkg('bajo-cli:@inquirer/input', 'bajo-cli:@inquirer/select')
@@ -19,7 +19,7 @@ async function removeRecord (path, args) {
       validate: text => isEmpty(text) ? print.__('ID is required') : true
     })
   }
-  await postProcess.call(this, { handler: 'recordRemove', params: [schema, id], path, processMsg: 'Removing record' })
+  await postProcess.call(this, { handler: 'recordRemove', params: [schema, id], path, processMsg: 'Removing record', options })
 }
 
 export default removeRecord

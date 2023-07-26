@@ -1,13 +1,12 @@
 import start from '../../../bajo/start.js'
 
-async function postProcess ({ handler, params, path, processMsg, noConfirm }) {
+async function postProcess ({ handler, params, path, processMsg, noConfirm, options = {} } = {}) {
   const { print, getConfig, saveAsDownload, importPkg } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { find } = await importPkg('lodash-es')
   const [stripAnsi, confirm] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/confirm')
   const config = getConfig()
-  const options = { fields: config.fields }
-  params.push(options)
+  params.push({ fields: config.fields })
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
   if (!schema) print.fatal(' 0n23b', params[0])
@@ -26,9 +25,8 @@ async function postProcess ({ handler, params, path, processMsg, noConfirm }) {
       await saveAsDownload(file, stripAnsi(result), 'bajoDb')
     } else console.log(result)
   } catch (err) {
-    spinner.fatal('Error: %s', err.message)
+    spinner.fail('Error: %s', err.message)
   }
-  process.exit() // force closed
 }
 
 export default postProcess

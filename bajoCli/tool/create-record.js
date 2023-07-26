@@ -1,6 +1,6 @@
 import postProcess from './lib/post-process.js'
 
-async function createRecord (path, args) {
+async function createRecord (path, args, options) {
   const { importPkg, print } = this.bajo.helper
   const { isEmpty, map, isPlainObject, get } = await importPkg('lodash-es')
   const [input, select, boxen] = await importPkg('bajo-cli:@inquirer/input',
@@ -36,7 +36,7 @@ async function createRecord (path, args) {
     print.fatal('Invalid payload syntax')
   }
   console.log(boxen(JSON.stringify(payload, null, 2), { title: schema, padding: 0.5, borderStyle: 'round' }))
-  await postProcess.call(this, { handler: 'recordCreate', params: [schema, payload], path, processMsg: 'Creating record' })
+  await postProcess.call(this, { handler: 'recordCreate', params: [schema, payload], path, processMsg: 'Creating record', options })
 }
 
 export default createRecord

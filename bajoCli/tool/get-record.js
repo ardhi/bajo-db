@@ -1,6 +1,6 @@
 import postProcess from './lib/post-process.js'
 
-async function getRecord (path, args) {
+async function getRecord (path, args, options) {
   const { importPkg, print } = this.bajo.helper
   const { isEmpty, map, get } = await importPkg('lodash-es')
   const [input, select] = await importPkg('bajo-cli:@inquirer/input', 'bajo-cli:@inquirer/select')
@@ -19,7 +19,7 @@ async function getRecord (path, args) {
       validate: text => isEmpty(text) ? print.__('ID is required') : true
     })
   }
-  await postProcess.call(this, { noConfirm: true, handler: 'recordGet', params: [schema, id], path, processMsg: 'Getting record' })
+  await postProcess.call(this, { noConfirm: true, handler: 'recordGet', params: [schema, id], path, processMsg: 'Getting record', options })
 }
 
 export default getRecord

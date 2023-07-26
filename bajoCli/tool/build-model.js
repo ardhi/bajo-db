@@ -31,7 +31,6 @@ async function buildModel (path, args) {
     else result.failed++
   }
   print.info('Done! Succeded: %d, failed: %s, skipped: %d', result.succed, result.failed, result.skipped)
-  process.exit() // force closed
 }
 
 export default buildModel

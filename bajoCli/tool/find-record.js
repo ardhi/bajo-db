@@ -1,6 +1,6 @@
 import postProcess from './lib/post-process.js'
 
-async function findRecord (path, args) {
+async function findRecord (path, args, options) {
   const { importPkg, print, getConfig } = this.bajo.helper
   const { isEmpty, map, get, pick } = await importPkg('lodash-es')
   const [select, input] = await importPkg('bajo-cli:@inquirer/select', 'bajo-cli:@inquirer/input')
@@ -22,7 +22,7 @@ async function findRecord (path, args) {
   const filter = pick(config, ['page', 'offset', 'pageSize', 'sort'])
   filter.pageSize = filter.pageSize || filter.limit
   filter.query = query
-  await postProcess.call(this, { noConfirm: true, handler: 'recordFind', params: [schema, filter], path, processMsg: 'Finding record(s)' })
+  await postProcess.call(this, { noConfirm: true, handler: 'recordFind', params: [schema, filter], path, processMsg: 'Finding record(s)', options })
 }
 
 export default findRecord
