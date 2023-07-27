@@ -1,7 +1,7 @@
 async function start (noRebuild) {
   const { getConfig, importPkg, importModule, log } = this.bajo.helper
   const { find, filter } = await importPkg('lodash-es')
-  // this.bajoDb.instances = []
+  if (noRebuild) return
   for (const c of (this.bajoDb.connections || [])) {
     const driver = find(this.bajoDb.drivers, { driver: c.driver, type: c.type })
     const opts = getConfig(driver.provider, { full: true })

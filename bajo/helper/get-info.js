@@ -1,4 +1,4 @@
-async function getInstance (name) {
+async function getInfo (name) {
   const { importPkg } = this.bajo.helper
   const { find, map, isString } = await importPkg('lodash-es')
   const schema = isString(name) ? find(this.bajoDb.schemas, { name }) : name
@@ -7,7 +7,7 @@ async function getInstance (name) {
   const instance = find(this[driver.provider].instances, { name: schema.connection })
   const opts = conn.type === 'mssql' ? { includeTriggerModifications: true } : undefined
   const returning = [map(schema.properties, 'name'), opts]
-  return { instance, driver, connection: conn, returning }
+  return { instance, driver, connection: conn, returning, schema }
 }
 
-export default getInstance
+export default getInfo

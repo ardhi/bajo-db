@@ -9,13 +9,13 @@ async function postProcess ({ handler, params, path, processMsg, noConfirm, opti
   params.push({ fields: config.fields })
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
-  if (!schema) print.fatal(' 0n23b', params[0])
+  if (!schema) print.fatal('No schema found!', params[0])
   if (!noConfirm) {
     const answer = await confirm({ message: print.__('Are you sure to continue?') })
     if (!answer) print.fatal('Aborted!')
   }
   const spinner = print.bora(`${processMsg}...`).start()
-  await start.call(this, true)
+  await start.call(this)
   try {
     const resp = await this.bajoDb.helper[handler](...params)
     spinner.succeed('Done!')
