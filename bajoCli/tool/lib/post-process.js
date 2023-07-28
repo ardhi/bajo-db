@@ -6,7 +6,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirm, opti
   const { find } = await importPkg('lodash-es')
   const [stripAnsi, confirm] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/confirm')
   const config = getConfig()
-  params.push({ fields: config.fields })
+  params.push({ fields: config.fields, dataOnly: !config.full })
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
   if (!schema) print.fatal('No schema found!', params[0])
