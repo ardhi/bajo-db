@@ -1,11 +1,10 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
 
 async function find (name, filter, options = {}) {
-  const { error } = this.bajo.helper
-  const { pickRecord } = this.bajoDb.helper
+  const { pickRecord, collExists } = this.bajoDb.helper
   const { fields, dataOnly = true } = options
-  const { handler, existsHandler, schema } = await buildRecordAction.call(this, 'find', name)
-  if (!await existsHandler.call(this, schema)) throw error('Collection doesn\'t exist yet. Please rebuild its model first')
+  await collExists(name, true)
+  const { handler, schema } = await buildRecordAction.call(this, name, 'find')
   const records = await handler.call(this, { schema, filter, options })
   for (const idx in records.data) {
     records.data[idx] = await pickRecord({ record: records.data[idx], fields, schema })

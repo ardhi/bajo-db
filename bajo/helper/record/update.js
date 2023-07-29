@@ -1,11 +1,10 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
 
 async function update (name, id, body, options = {}) {
-  const { error } = this.bajo.helper
-  const { pickRecord, sanitizeBody } = this.bajoDb.helper
+  const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
   const { fields, dataOnly = true } = options
-  const { handler, existsHandler, schema } = await buildRecordAction.call(this, 'update', name)
-  if (!await existsHandler.call(this, schema)) throw error('Collection doesn\'t exist yet. Please rebuild its model first')
+  await collExists(name, true)
+  const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   const newBody = await sanitizeBody({ body, schema, partial: true })
   delete newBody.id
   const result = await handler.call(this, { schema, id, body: newBody, options })
