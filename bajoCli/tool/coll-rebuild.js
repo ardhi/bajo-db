@@ -2,7 +2,7 @@ import start from '../../bajo/start.js'
 
 async function buildModel (path, args) {
   const { importPkg, print, getConfig } = this.bajo.helper
-  const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
+  const { getInfo, collExists, collDrop, collCreate, collFixture } = this.bajoDb.helper
   const { isEmpty, map, trim } = await importPkg('lodash-es')
   const [input, confirm, boxen, outmatch] = await importPkg('bajo-cli:@inquirer/input',
     'bajo-cli:@inquirer/confirm', 'bajo-cli:boxen', 'outmatch', 'fs-extra')
@@ -56,7 +56,9 @@ async function buildModel (path, args) {
     }
     try {
       await collCreate(schema)
-      spinner.succeed('Model \'%s\' successfully created', schema.name)
+      const fixture = await collFixture(schema)
+      if (isEmpty(fixture)) spinner.succeed('Model \'%s\' successfully created', schema.name)
+      else spinner.succeed('Model \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
       result.succed++
     } catch (err) {
       spinner.fail('Error on creating \'%s\': %s', schema.name, err.message)

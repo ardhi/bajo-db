@@ -8,9 +8,9 @@ async function update (name, id, body, options = {}) {
   const newBody = await sanitizeBody({ body, schema, partial: true })
   delete newBody.id
   const result = await handler.call(this, { schema, id, body: newBody, options })
-  result.old = await pickRecord({ record: result.old, fields, schema })
-  result.new = await pickRecord({ record: result.new, fields, schema })
-  return dataOnly ? result.new : result
+  result.oldData = await pickRecord({ record: result.oldData, fields, schema })
+  result.data = await pickRecord({ record: result.data, fields, schema })
+  return dataOnly ? result.data : result
 }
 
 export default update
