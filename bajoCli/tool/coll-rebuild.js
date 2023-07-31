@@ -1,8 +1,9 @@
 import start from '../../bajo/start.js'
+import addFixtures from '../../lib/add-fixtures.js'
 
 async function buildModel (path, args) {
   const { importPkg, print, getConfig } = this.bajo.helper
-  const { getInfo, collExists, collDrop, collCreate, collFixture } = this.bajoDb.helper
+  const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
   const { isEmpty, map, trim } = await importPkg('lodash-es')
   const [input, confirm, boxen, outmatch] = await importPkg('bajo-cli:@inquirer/input',
     'bajo-cli:@inquirer/confirm', 'bajo-cli:boxen', 'outmatch', 'fs-extra')
@@ -30,7 +31,7 @@ async function buildModel (path, args) {
   await start.call(this, conns, true)
   const result = { succed: 0, failed: 0, skipped: 0 }
   for (const s of models) {
-    const { schema, instance } = await getInfo(s)
+    const { schema, instance, connection } = await getInfo(s)
     const spinner = print.bora('Rebuilding \'%s\'...', schema.name).start()
     if (!instance) {
       spinner.warn('No need to rebuild \'%s@%s\'. Skipped!', schema.connection, schema.name)
@@ -56,9 +57,11 @@ async function buildModel (path, args) {
     }
     try {
       await collCreate(schema)
-      const fixture = await collFixture(schema)
-      if (isEmpty(fixture)) spinner.succeed('Model \'%s\' successfully created', schema.name)
-      else spinner.succeed('Model \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
+      if (connection.memory) spinner.succeed('Model \'%s\' successfully created', schema.name)
+      else {
+        const fixture = await addFixtures.call(this, schema)
+        spinner.succeed('Model \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
+      }
       result.succed++
     } catch (err) {
       spinner.fail('Error on creating \'%s\': %s', schema.name, err.message)

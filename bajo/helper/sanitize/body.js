@@ -1,6 +1,6 @@
 async function sanitizeBody ({ body = {}, schema = {}, partial }) {
-  const { importPkg, error, isSet } = this.bajo.helper
-  const { has, cloneDeep, get } = await importPkg('lodash-es')
+  const { importPkg, error, isSet, dayjs } = this.bajo.helper
+  const { has, cloneDeep, get, each } = await importPkg('lodash-es')
   const result = {}
   for (const p of schema.properties) {
     if (partial && !has(body, p.name)) continue
@@ -10,6 +10,14 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
     }
     if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(body[p.name])
     if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(body[p.name])
+    each(['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss'], t => {
+      const [type, format] = t.split('|')
+      if (p.type === type) {
+        const dt = dayjs(body[p.name], format)
+        if (!dt.isValid()) throw error('Can\'t parse \'%s\' as %s value', body[p.name], type)
+        result[p.name] = dt.toDate()
+      }
+    })
     if (!isSet(result[p.name]) && p.default) {
       result[p.name] = p.default
       if (p.default.startsWith('helper:')) {

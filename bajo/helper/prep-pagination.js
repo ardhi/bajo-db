@@ -5,7 +5,7 @@ async function prepPagination (filter = {}, schema) {
   const { getConfig, importPkg, error } = this.bajo.helper
   const lo = await importPkg('lodash-es')
   const _filter = lo.filter
-  const { map, trim, isString, each, isPlainObject, isEmpty, xor, keys } = lo
+  const { map, trim, isString, each, isPlainObject, isEmpty, keys } = lo
   const opts = getConfig('bajoDb')
   // query
   let query
@@ -54,10 +54,13 @@ async function prepPagination (filter = {}, schema) {
       })
       sort = item
     }
-    const indexes = map(_filter(schema.properties, p => !!p.index), 'name')
+    const indexes = map(_filter(schema.properties, p => {
+      return (!!p.index) || (!!p.primary)
+    }), 'name')
     const items = keys(sort)
-    const diff = xor(indexes, items)
-    if (diff.length > 0) throw error('Sort on unindexed fields: \'%s\'', diff.join(', '))
+    each(items, i => {
+      if (!indexes.includes(i)) throw error('Sort on unindexed field: \'%s@%s\'', i, schema.name)
+    })
   }
 
   return { limit, page, skip, query, sort }
