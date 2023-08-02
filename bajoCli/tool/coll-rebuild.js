@@ -9,28 +9,28 @@ async function buildModel (path, args) {
     'bajo-cli:@inquirer/confirm', 'bajo-cli:boxen', 'outmatch', 'fs-extra')
   const config = getConfig()
   const schemas = map(this.bajoDb.schemas, 'name')
-  let models = args.join(' ')
+  let names = args.join(' ')
   if (isEmpty(schemas)) print.fatal('No schema found!')
-  if (isEmpty(models)) {
-    models = await input({
+  if (isEmpty(names)) {
+    names = await input({
       message: print.__('Enter schema name(s), separated by space:'),
       default: '*'
     })
   }
-  const isMatch = outmatch(map(models.split(' '), m => trim(m)))
-  models = schemas.filter(isMatch)
-  if (models.length === 0) print.fatal('No schema matched', true)
-  console.log(boxen(models.join(' '), { title: print.__('Schema (%d)', models.length), padding: 0.5, borderStyle: 'round' }))
-  const answer = await confirm({ message: print.__('The above mentioned schema(s) will be rebuilt & modeled. Continue?') })
+  const isMatch = outmatch(map(names.split(' '), m => trim(m)))
+  names = schemas.filter(isMatch)
+  if (names.length === 0) print.fatal('No schema matched', true)
+  console.log(boxen(names.join(' '), { title: print.__('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
+  const answer = await confirm({ message: print.__('The above mentioned schema(s) will be rebuilt as collection. Continue?') })
   if (!answer) print.fatal('Aborted!')
   const conns = []
-  for (const s of models) {
+  for (const s of names) {
     const { connection } = await getInfo(s)
     if (!conns.includes(connection.name)) conns.push(connection.name)
   }
   await start.call(this, conns, true)
   const result = { succed: 0, failed: 0, skipped: 0 }
-  for (const s of models) {
+  for (const s of names) {
     const { schema, instance, connection } = await getInfo(s)
     const spinner = print.bora('Rebuilding \'%s\'...', schema.name).start()
     if (!instance) {
@@ -45,7 +45,7 @@ async function buildModel (path, args) {
           await collDrop(schema)
           spinner.setText('Model \'%s\' successfully dropped', schema.name)
         } catch (err) {
-          spinner.fail('Error on dropping model \'%s\': %s', schema.name, err.message)
+          spinner.fail('Error on dropping collection \'%s\': %s', schema.name, err.message)
           result.failed++
           continue
         }
