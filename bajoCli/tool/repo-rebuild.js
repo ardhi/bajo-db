@@ -3,7 +3,7 @@ import addFixtures from '../../lib/add-fixtures.js'
 
 async function buildModel (path, args) {
   const { importPkg, print, getConfig } = this.bajo.helper
-  const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
+  const { getInfo, repoExists, repoDrop, repoCreate } = this.bajoDb.helper
   const { isEmpty, map, trim } = await importPkg('lodash-es')
   const [input, confirm, boxen, outmatch] = await importPkg('bajo-cli:@inquirer/input',
     'bajo-cli:@inquirer/confirm', 'bajo-cli:boxen', 'outmatch', 'fs-extra')
@@ -21,7 +21,7 @@ async function buildModel (path, args) {
   names = schemas.filter(isMatch)
   if (names.length === 0) print.fatal('No schema matched', true)
   console.log(boxen(names.join(' '), { title: print.__('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
-  const answer = await confirm({ message: print.__('The above mentioned schema(s) will be rebuilt as collection. Continue?') })
+  const answer = await confirm({ message: print.__('The above mentioned schema(s) will be rebuilt as repository. Continue?') })
   if (!answer) print.fatal('Aborted!')
   const conns = []
   for (const s of names) {
@@ -38,14 +38,14 @@ async function buildModel (path, args) {
       result.skipped++
       continue
     }
-    const exists = await collExists(schema, true)
+    const exists = await repoExists(schema, true)
     if (exists) {
       if (config.force) {
         try {
-          await collDrop(schema)
+          await repoDrop(schema)
           spinner.setText('Model \'%s\' successfully dropped', schema.name)
         } catch (err) {
-          spinner.fail('Error on dropping collection \'%s\': %s', schema.name, err.message)
+          spinner.fail('Error on dropping repository \'%s\': %s', schema.name, err.message)
           result.failed++
           continue
         }
@@ -56,7 +56,7 @@ async function buildModel (path, args) {
       }
     }
     try {
-      await collCreate(schema)
+      await repoCreate(schema)
       if (connection.memory) spinner.succeed('Model \'%s\' successfully created', schema.name)
       else {
         const fixture = await addFixtures.call(this, schema)

@@ -5,7 +5,7 @@ const mods = [
   { method: 'recordUpdate' },
   { method: 'recordRemove' },
   '-',
-  { method: 'collRebuild' },
+  { method: 'repoRebuild' },
   '-',
   { method: 'schema' },
   { method: 'connection' },

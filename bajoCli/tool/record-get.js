@@ -19,7 +19,7 @@ async function getRecord (path, args, options) {
       validate: text => isEmpty(text) ? print.__('ID is required') : true
     })
   }
-  await postProcess.call(this, { noConfirm: true, handler: 'recordGet', params: [schema, id], path, processMsg: 'Getting record', options })
+  await postProcess.call(this, { noConfirmation: true, handler: 'recordGet', params: [schema, id], path, processMsg: 'Getting record', options })
 }
 
 export default getRecord

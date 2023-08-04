@@ -9,12 +9,18 @@ async function defSanitizer (connection) {
 
 async function handler ({ item, index, options }) {
   const conn = item
-  const { importPkg, fatal, importModule, print, getConfig } = this.bajo.helper
+  const { importPkg, log, importModule, print, getConfig } = this.bajo.helper
   const { has, find } = await importPkg('lodash-es')
   const fs = await importPkg('fs-extra')
-  if (!has(conn, 'type')) fatal('%s must have a valid DB type', print.__('Connection'), { code: 'BAJODB_CONNECTION_MISSING_TYPE' })
+  if (!has(conn, 'type')) {
+    log.error('%s must have a valid DB type', print.__('Connection'))
+    return false
+  }
   const type = find(this.bajoDb.drivers, { type: conn.type })
-  if (!type) fatal('Unsupported DB type \'%s\'', conn.type, { code: 'BAJODB_UNKNOWN_DB_TYPE' })
+  if (!type) {
+    log.error('Unsupported DB type \'%s\'', conn.type)
+    return false
+  }
   if (!has(conn, 'name')) conn.name = 'default'
   const opts = getConfig(type.provider, { full: true })
   if (!sanitizer[type.provider]) {

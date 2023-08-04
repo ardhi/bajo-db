@@ -19,7 +19,7 @@ async function findRecord (path, args, options) {
     })
   }
   const filter = { query }
-  await postProcess.call(this, { noConfirm: true, handler: 'recordCount', params: [schema, filter], path, processMsg: 'Counting record(s)', options })
+  await postProcess.call(this, { noConfirmation: true, handler: 'recordCount', params: [schema, filter], path, processMsg: 'Counting record(s)', options })
 }
 
 export default findRecord

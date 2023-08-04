@@ -1,19 +1,20 @@
 import start from '../../../bajo/start.js'
 const conns = []
 
-async function postProcess ({ handler, params, path, processMsg, noConfirm, options = {} } = {}) {
+async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
   const { print, getConfig, saveAsDownload, importPkg } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
   const { find } = await importPkg('lodash-es')
   const [stripAnsi, confirm] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/confirm')
   const config = getConfig()
+  if (!noConfirmation && config.confirmation === false) noConfirmation = true
   params.push({ fields: config.fields, dataOnly: !config.full })
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
   if (!schema) print.fatal('No schema found!', params[0])
-  if (!noConfirm) {
-    const answer = await confirm({ message: print.__('Are you sure to continue?') })
+  if (!noConfirmation) {
+    const answer = await confirm({ message: print.__('Are you sure to continue?'), default: false })
     if (!answer) print.fatal('Aborted!')
   }
   const spinner = print.bora(`${processMsg}...`).start()
