@@ -1,5 +1,5 @@
 async function exists (name, thrown) {
-  const { error } = this.bajo
+  const { error } = this.bajo.helper
   const { getInfo } = this.bajoDb.helper
   const { getConfig, importModule } = this.bajo.helper
   const { driver, schema } = await getInfo(name)

@@ -19,7 +19,7 @@ async function findRecord (path, args, options) {
       message: print.__('Please enter a query (if any):')
     })
   }
-  const filter = pick(config, ['page', 'offset', 'pageSize', 'sort'])
+  const filter = pick(config, ['page', 'offset', 'pageSize', 'sort', 'limit'])
   filter.pageSize = filter.pageSize || filter.limit
   filter.query = query
   await postProcess.call(this, { noConfirmation: true, handler: 'recordFind', params: [schema, filter], path, processMsg: 'Finding record(s)', options })

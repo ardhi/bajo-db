@@ -13,7 +13,7 @@
     "filter": {
       "limit": 25,
       "maxLimit": 200,
-      "sort": ["updatedAt:-1", "updated_at:-1", "createdAt:-1", "createdAt:-1", "username", "name"]
+      "sort": ["updatedAt:-1", "updated_at:-1", "createdAt:-1", "createdAt:-1", "ts:-1", "username", "name"]
     }
   }
 }

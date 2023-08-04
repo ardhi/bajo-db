@@ -21,7 +21,10 @@ async function buildModel (path, args) {
   names = schemas.filter(isMatch)
   if (names.length === 0) print.fatal('No schema matched', true)
   console.log(boxen(names.join(' '), { title: print.__('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
-  const answer = await confirm({ message: print.__('The above mentioned schema(s) will be rebuilt as repository. Continue?') })
+  const answer = await confirm({
+    message: print.__('The above mentioned schema(s) will be rebuilt as repository. Continue?'),
+    default: false
+  })
   if (!answer) print.fatal('Aborted!')
   const conns = []
   for (const s of names) {
@@ -38,7 +41,7 @@ async function buildModel (path, args) {
       result.skipped++
       continue
     }
-    const exists = await repoExists(schema, true)
+    const exists = await repoExists(schema)
     if (exists) {
       if (config.force) {
         try {

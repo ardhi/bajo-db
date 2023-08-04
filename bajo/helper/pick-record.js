@@ -1,4 +1,5 @@
-function transform ({ record, schema } = {}) {
+async function transform ({ record, schema } = {}) {
+  const { sanitizeBody } = this.bajoDb.helper
   if (record._id) {
     record.id = record._id
     delete record._id
@@ -7,17 +8,17 @@ function transform ({ record, schema } = {}) {
   for (const p of schema.properties) {
     result[p.name] = record[p.name] || null
   }
-  return result
+  return await sanitizeBody({ body: result, schema, partial: true })
 }
 
 async function pickRecord ({ record, fields, schema = {} } = {}) {
   const { importPkg } = this.bajo.helper
   const { isArray, pick, clone, isEmpty } = await importPkg('lodash-es')
   if (isEmpty(record)) return record
-  if (!isArray(fields)) return transform({ record, schema })
+  if (!isArray(fields)) return await transform.call(this, { record, schema })
   const fl = clone(fields)
   if (!fl.includes('id')) fl.unshift('id')
-  return pick(transform({ record, schema }), fl)
+  return pick(await transform.call(this, { record, schema }), fl)
 }
 
 export default pickRecord
