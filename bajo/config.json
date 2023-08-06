@@ -1,6 +1,7 @@
 {
   "connections": [],
   "dependencies": [],
+  "mergeProps": ["connections"],
   "defaults": {
     "property": {
       "text": {

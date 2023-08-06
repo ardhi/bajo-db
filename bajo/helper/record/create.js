@@ -5,7 +5,7 @@ async function create (name, body, options = {}) {
   const { pickRecord, sanitizeBody, repoExists } = this.bajoDb.helper
   const { fields, dataOnly = true } = options
   await repoExists(name, true)
-  const { handler, schema } = await buildRecordAction.call(this, name, 'create')
+  const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   const newBody = await sanitizeBody({ body, schema })
   newBody.id = newBody.id || generateId()
   const now = new Date()

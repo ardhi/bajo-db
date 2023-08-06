@@ -13,10 +13,15 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
   if (!schema) print.fatal('No schema found!', params[0])
+  let cont = true
   if (!noConfirmation) {
     const answer = await confirm({ message: print.__('Are you sure to continue?'), default: false })
-    if (!answer) print.fatal('Aborted!')
+    if (!answer) {
+      print.fail('Aborted!')
+      cont = false
+    }
   }
+  if (!cont) return
   const spinner = print.bora(`${processMsg}...`).start()
   const { connection } = await getInfo(schema)
   if (!conns.includes(connection.name)) {

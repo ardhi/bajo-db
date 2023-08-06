@@ -14,7 +14,7 @@ async function start (conns, noRebuild) {
       const mod = await importModule(`${opts.dir}/bajoDb/boot/instantiation.js`)
       await mod.call(this, { connection: c, noRebuild, schemas })
       for (const s of schemas) {
-        if (c.memory) await addFixtures.call(this, s.name)
+        if (c.memory || s.memory) await addFixtures.call(this, s.name)
       }
       log.trace('Driver \'%s@%s\' instantiated', c.driver, c.name)
     } catch (err) {
