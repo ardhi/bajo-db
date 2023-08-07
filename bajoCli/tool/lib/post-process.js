@@ -2,10 +2,10 @@ import start from '../../../bajo/start.js'
 const conns = []
 
 async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
-  const { print, getConfig, saveAsDownload, importPkg } = this.bajo.helper
+  const { print, getConfig, saveAsDownload, importPkg, generateId } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
-  const { find } = await importPkg('lodash-es')
+  const { find, get } = await importPkg('lodash-es')
   const [stripAnsi, confirm] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/confirm')
   const config = getConfig()
   if (!noConfirmation && config.confirmation === false) noConfirmation = true
@@ -33,8 +33,10 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
     spinner.succeed('Done!')
     const result = config.pretty ? (await prettyPrint(resp)) : JSON.stringify(resp, null, 2)
     if (config.save) {
-      const file = `/${path}/${params[0]}/${result.id}.${config.pretty ? 'txt' : 'json'}`
-      await saveAsDownload(file, stripAnsi(result), 'bajoDb')
+      const id = resp.id || get(resp, 'data.id') || get(resp, 'oldData.id') || generateId()
+      const base = path === 'recordFind' ? params[0] : (params[0] + '/' + id)
+      const file = `/${path}/${base}.${config.pretty ? 'txt' : 'json'}`
+      await saveAsDownload(file, stripAnsi(result))
     } else console.log(result)
   } catch (err) {
     spinner.fail('Error: %s', err.message)

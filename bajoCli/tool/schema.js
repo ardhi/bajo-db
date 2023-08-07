@@ -20,7 +20,7 @@ async function schema (path, args) {
   result = config.pretty ? (await prettyPrint(result, false, false)) : JSON.stringify(result, null, 2)
   if (config.save) {
     const file = `/${path}/${name}.${config.pretty ? 'txt' : 'json'}`
-    await saveAsDownload(file, stripAnsi(result), 'bajoDb')
+    await saveAsDownload(file, stripAnsi(result))
   } else console.log(result)
 }
 
