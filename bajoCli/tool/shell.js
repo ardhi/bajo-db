@@ -15,7 +15,7 @@ const mods = [
 ]
 
 async function shell (path, args, options) {
-  const { importPkg, print, importModule, pathResolve, currentLoc } = this.bajo.helper
+  const { importPkg, print, importModule, resolvePath, currentLoc } = this.bajo.helper
   const prompts = await importPkg('bajo-cli:@inquirer/prompts')
   const { map, find, repeat, kebabCase } = await importPkg('lodash-es')
   const { select, Separator, confirm } = prompts
@@ -38,7 +38,7 @@ async function shell (path, args, options) {
     print.info('Running: %s', method)
     const mod = find(mods, { method })
     const file = `${dir}/${kebabCase(mod.method)}.js`
-    const instance = await importModule(pathResolve(file))
+    const instance = await importModule(resolvePath(file))
     await instance.call(this, method, [])
     console.log(repeat('-', 80))
   }
