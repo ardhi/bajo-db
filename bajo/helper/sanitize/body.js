@@ -8,8 +8,8 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
     if (p.required && !['id'].includes(p.name) && (!has(result, p.name) || !isSet(result[p.name]))) {
       throw error('Field \'%s@%s\' is required', p.name, schema.name, { code: 'BAJODB_FIELD_REQUIRED' })
     }
-    if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(body[p.name])
-    if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(body[p.name])
+    if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(body[p.name]) || null
+    if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(body[p.name]) || null
     each(['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss'], t => {
       const [type, format] = t.split('|')
       if (p.type === type) {
@@ -25,8 +25,8 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
         const method = get(this, helper)
         if (method) result[p.name] = await this[method]()
       } else {
-        if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(result[p.name])
-        if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(result[p.name])
+        if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(result[p.name]) || null
+        if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(result[p.name]) || null
       }
     }
   }
