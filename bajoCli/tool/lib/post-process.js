@@ -33,7 +33,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
     spinner.succeed('Done!')
     const result = config.pretty ? (await prettyPrint(resp)) : JSON.stringify(resp, null, 2)
     if (config.save) {
-      const id = resp.id || get(resp, 'data.id') || get(resp, 'oldData.id') || generateId()
+      const id = resp.id ?? get(resp, 'data.id') ?? get(resp, 'oldData.id') ?? generateId()
       const base = path === 'recordFind' ? params[0] : (params[0] + '/' + id)
       const file = `/${path}/${base}.${config.pretty ? 'txt' : 'json'}`
       await saveAsDownload(file, stripAnsi(result))

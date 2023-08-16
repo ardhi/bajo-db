@@ -6,7 +6,7 @@ async function transform ({ record, schema } = {}) {
   }
   const result = {}
   for (const p of schema.properties) {
-    result[p.name] = record[p.name] || null
+    result[p.name] = record[p.name] ?? null
   }
   return await sanitizeBody({ body: result, schema, partial: true })
 }

@@ -7,7 +7,7 @@ async function create (name, body, options = {}) {
   await repoExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   const newBody = await sanitizeBody({ body, schema })
-  newBody.id = newBody.id || generateId()
+  newBody.id = newBody.id ?? generateId()
   const now = new Date()
   if (schema.feature.createdAt && !isSet(newBody[schema.feature.createdAt.propName])) newBody[schema.feature.createdAt.propName] = now
   if (schema.feature.updatedAt && !isSet(newBody[schema.feature.updatedAt.propName])) newBody[schema.feature.updatedAt.propName] = now
