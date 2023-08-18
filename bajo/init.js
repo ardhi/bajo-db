@@ -1,4 +1,5 @@
 import collectDrivers from '../lib/collect-drivers.js'
+import collectFeature from '../lib/collect-feature.js'
 import collectSchema from '../lib/collect-schema.js'
 import sanitizeSchema from '../lib/sanitize-schema.js'
 
@@ -41,6 +42,8 @@ async function init () {
   if (this.bajoDb.connections.length === 0) log.warn('No %s found!', print.__('connection'))
   freeze(this.bajoDb.connections)
   log.debug('Loaded connections: %s', map(this.bajoDb.connections, 'name').join(', '))
+  this.bajoDb.feature = {}
+  await eachPlugins(collectFeature, { glob: 'feature/*.js' })
   this.bajoDb.schemas = []
   const result = await eachPlugins(collectSchema, { glob: 'schema/*.*' })
   if (isEmpty(result)) log.warn('No %s found!', print.__('schema'))
