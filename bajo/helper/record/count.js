@@ -6,9 +6,9 @@ async function count (name, filter, options = {}) {
   const { dataOnly = true } = options
   await repoExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'count')
-  await runHook('bajoDb:beforeRecordCount' + name, filter, options)
+  await runHook(`bajoDb.${name}:onBeforeRecordCount`, filter, options)
   const rec = await handler.call(this, { schema, filter, options })
-  await runHook('bajoDb:afterRecordCount' + name, filter, options, rec)
+  await runHook(`bajoDb.${name}:onAfterRecordCount`, filter, options, rec)
   return dataOnly ? rec.data : rec
 }
 
