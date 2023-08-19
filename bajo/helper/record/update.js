@@ -7,6 +7,7 @@ async function update (name, id, body, options = {}) {
   const { fields, dataOnly = true } = options
   await repoExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
+  await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
   await runHook(`bajoDb.${name}:onBeforeRecordUpdate`, id, body, options)
   for (const f in schema.feature) {
     if (!schema.feature[f]) continue
@@ -17,6 +18,7 @@ async function update (name, id, body, options = {}) {
   delete newBody.id
   const result = await handler.call(this, { schema, id, body: newBody, options })
   await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, newBody, options, result)
+  await runHook('bajoDb:onAfterRecordUpdate', name, id, newBody, options, result)
   result.oldData = await pickRecord({ record: result.oldData, fields, schema })
   result.data = await pickRecord({ record: result.data, fields, schema })
   return dataOnly ? result.data : result

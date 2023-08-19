@@ -7,6 +7,7 @@ async function create (name, body, options = {}) {
   const { fields, dataOnly = true } = options
   await repoExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
+  await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
   await runHook(`bajoDb.${name}:onBeforeRecordCreate`, body, options)
   for (const f in schema.feature) {
     if (!schema.feature[f]) continue
@@ -17,6 +18,7 @@ async function create (name, body, options = {}) {
   newBody.id = newBody.id ?? generateId()
   const record = await handler.call(this, { schema, body: newBody, options })
   await runHook(`bajoDb.${name}:onAfterRecordCreate`, newBody, options, record)
+  await runHook('bajoDb:onAfterRecordCreate', name, newBody, options, record)
   record.data = await pickRecord({ record: record.data, fields, schema })
   return dataOnly ? record.data : record
 }
