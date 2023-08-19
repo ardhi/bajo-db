@@ -1,6 +1,3 @@
-import nql from '@tryghost/nql'
-import mongoKnex from '@tryghost/mongo-knex'
-
 async function prepPagination (filter = {}, schema) {
   const { getConfig, importPkg, error } = this.bajo.helper
   const lo = await importPkg('lodash-es')
@@ -8,15 +5,7 @@ async function prepPagination (filter = {}, schema) {
   const { map, trim, isString, each, isPlainObject, isEmpty, keys } = lo
   const opts = getConfig('bajoDb')
   // query
-  let query
-  if (!isEmpty(filter.query)) {
-    if (isPlainObject(filter.query)) {
-      query = { querySQL: qb => mongoKnex(qb, filter.query), toJSON: () => (filter.query) }
-    } else if (trim(filter.query).startsWith('{')) {
-      const parsed = JSON.parse(filter.query)
-      query = { querySQL: qb => mongoKnex(qb, parsed), toJSON: () => (parsed) }
-    } else query = nql(filter.query)
-  }
+  const query = filter.query ?? {}
   // limit
   let limit = parseInt(filter.limit) || opts.defaults.filter.limit
   if (limit > opts.defaults.filter.maxLimit) limit = opts.defaults.filter.maxLimit
