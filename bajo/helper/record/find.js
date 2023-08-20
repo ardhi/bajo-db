@@ -1,6 +1,6 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
 
-async function find (name, filter, options = {}) {
+async function find (name, filter = {}, options = {}) {
   const { runHook } = this.bajo.helper
   const { pickRecord, repoExists } = this.bajoDb.helper
   const { fields, dataOnly = true } = options

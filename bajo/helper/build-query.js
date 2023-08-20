@@ -7,7 +7,7 @@ async function buildQuery (input) {
   if (isPlainObject(input)) return input
   if (!isString(input)) return
   if (trim(input).startsWith('{')) return JSON.parse(input)
-  return nql(input)
+  return nql(input).parse()
 }
 
 export default buildQuery
