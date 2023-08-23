@@ -1,10 +1,22 @@
 async function sanitizeBody ({ body = {}, schema = {}, partial }) {
   const { importPkg, error, isSet, dayjs } = this.bajo.helper
-  const { has, cloneDeep, get, each } = await importPkg('lodash-es')
+  const { has, get, each, isString } = await importPkg('lodash-es')
   const result = {}
   for (const p of schema.properties) {
     if (partial && !has(body, p.name)) continue
-    result[p.name] = cloneDeep(body[p.name])
+    if (p.type === 'object') {
+      if (isString(body[p.name])) {
+        try {
+          result[p.name] = JSON.parse(body[p.name])
+        } catch (err) {
+          result[p.name] = null
+        }
+      } else {
+        try {
+          result[p.name] = JSON.parse(JSON.stringify(body[p.name]))
+        } catch (err) {}
+      }
+    } else result[p.name] = body[p.name]
     if (p.required && !['id'].includes(p.name) && (!has(result, p.name) || !isSet(result[p.name]))) {
       throw error('Field \'%s@%s\' is required', p.name, schema.name, { code: 'BAJODB_FIELD_REQUIRED' })
     }
