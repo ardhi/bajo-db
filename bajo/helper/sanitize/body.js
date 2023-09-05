@@ -22,6 +22,7 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
     }
     if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(body[p.name]) || null
     if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(body[p.name]) || null
+    if (p.type === 'boolean') result[p.name] = result[p.name] === null ? null : (!!result[p.name])
     each(['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss'], t => {
       const [type, format] = t.split('|')
       if (p.type === type) {
