@@ -44,5 +44,8 @@
   "'%s' key is required": "Kunci '%s' harus diisi",
   "Please enter a query (if any):": "Silahkan masukkan kueri (jika ada):",
   "Finding record(s)": "Temukan data",
-  "Record '%s@%s' exists already!": "Data '%s@%s' sudah ada"
+  "Record '%s@%s' exists already!": "Data '%s@%s' sudah ada",
+  "field": {
+    "username": "Nama Pengguna"
+  }
 }
