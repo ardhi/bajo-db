@@ -3,7 +3,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 async function find (name, filter = {}, options = {}) {
   const { runHook } = this.bajo.helper
   const { pickRecord, repoExists } = this.bajoDb.helper
-  const { fields, dataOnly = true, skipHook } = options
+  const { fields, dataOnly = true, skipHook, ignoreHidden } = options
   await repoExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'find')
   if (!skipHook) {
@@ -16,7 +16,7 @@ async function find (name, filter = {}, options = {}) {
     await runHook('bajoDb:onAfterRecordFind', name, filter, options, records)
   }
   for (const idx in records.data) {
-    records.data[idx] = await pickRecord({ record: records.data[idx], fields, schema })
+    records.data[idx] = await pickRecord({ record: records.data[idx], fields, schema, ignoreHidden })
   }
   return dataOnly ? records.data : records
 }

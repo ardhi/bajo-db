@@ -17,9 +17,11 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
         } catch (err) {}
       }
     } else result[p.name] = body[p.name]
+    /* already handled by validator
     if (p.required && !['id'].includes(p.name) && (!has(result, p.name) || !isSet(result[p.name]))) {
       throw error('Field \'%s@%s\' is required', p.name, schema.name, { code: 'BAJODB_FIELD_REQUIRED' })
     }
+    */
     if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(body[p.name]) || null
     if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(body[p.name]) || null
     if (p.type === 'boolean') result[p.name] = result[p.name] === null ? null : (!!result[p.name])

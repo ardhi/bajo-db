@@ -2,10 +2,11 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 
 async function create (name, body, options = {}) {
   const { generateId, runHook, importPkg } = this.bajo.helper
-  const { pickRecord, sanitizeBody, repoExists } = this.bajoDb.helper
+  const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get } = await importPkg('lodash-es')
-  const { fields, dataOnly = true, skipHook } = options
+  const { fields, dataOnly = true, skipHook, validateConvert = true, ignoreHidden } = options
   await repoExists(name, true)
+  body = await validate(body, name, { opts: { abortEarly: false, convert: validateConvert } })
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
@@ -24,7 +25,7 @@ async function create (name, body, options = {}) {
     await runHook(`bajoDb.${name}:onAfterRecordCreate`, newBody, options, record)
     await runHook('bajoDb:onAfterRecordCreate', name, newBody, options, record)
   }
-  record.data = await pickRecord({ record: record.data, fields, schema })
+  record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record
 }
 
