@@ -4,10 +4,19 @@ async function update (name, id, body, options = {}) {
   const { runHook, importPkg } = this.bajo.helper
   const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get, keys } = await importPkg('lodash-es')
-  const { fields, dataOnly = true, skipHook, validateConvert = true, ignoreHidden } = options
+  const { fields, dataOnly = true, skipHook, ignoreHidden } = options
   await repoExists(name, true)
-  const validateFields = keys(body)
-  body = await validate(body, name, { fields: validateFields, opts: { abortEarly: false, convert: validateConvert } })
+  if (!skipHook) {
+    await runHook('bajoDb:onBeforeRecordValidation', name, body, options)
+    await runHook(`bajoDb.${name}:onBeforeRecordValidation`, body, options)
+  }
+  const { validation = {} } = options
+  const opts = { abortEarly: false, convert: validation.convert ?? true, rule: validation.rule }
+  body = await validate(body, name, { ns: validation.ns, fields: keys(body), opts })
+  if (!skipHook) {
+    await runHook('bajoDb:onAfterRecordValidation', name, body, options)
+    await runHook(`bajoDb.${name}:onAfterRecordValidation`, body, options)
+  }
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)

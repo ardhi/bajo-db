@@ -4,9 +4,19 @@ async function create (name, body, options = {}) {
   const { generateId, runHook, importPkg } = this.bajo.helper
   const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get } = await importPkg('lodash-es')
-  const { fields, dataOnly = true, skipHook, validateConvert = true, ignoreHidden } = options
+  const { fields, dataOnly = true, skipHook, ignoreHidden } = options
   await repoExists(name, true)
-  body = await validate(body, name, { opts: { abortEarly: false, convert: validateConvert } })
+  if (!skipHook) {
+    await runHook('bajoDb:onBeforeRecordValidation', name, body, options)
+    await runHook(`bajoDb.${name}:onBeforeRecordValidation`, body, options)
+  }
+  const { validation = {} } = options
+  const opts = { abortEarly: false, convert: validation.convert ?? true, rule: validation.rule }
+  body = await validate(body, name, { ns: validation.ns, opts })
+  if (!skipHook) {
+    await runHook('bajoDb:onAfterRecordValidation', name, body, options)
+    await runHook(`bajoDb.${name}:onAfterRecordValidation`, body, options)
+  }
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
