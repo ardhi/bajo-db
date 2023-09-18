@@ -2,7 +2,7 @@ import joi from 'joi'
 import propType from '../../lib/prop-type.js'
 
 const excludedTypes = ['object']
-const excludedNames = ['id']
+const excludedNames = []
 
 const validator = {
   string: ['alphanum', 'base64', 'case', 'creditCard', 'dataUri', 'domain', 'email', 'guid',
@@ -52,10 +52,10 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
     if (['string', 'text'].includes(prop.type)) {
       forOwn(has, (v, k) => {
         if (v) return undefined
-        obj = obj[k](prop[`${k}Length`])
+        if (prop[`${k}Length`]) obj = obj[k](prop[`${k}Length`])
       })
     }
-    if (prop.required) obj = obj.required()
+    if (!['id'].includes(prop.name) && prop.required) obj = obj.required()
     return obj
   }
 
@@ -113,13 +113,14 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
 async function validate (value, joiSchema, { ns = ['bajoDb'], fields, opts } = {}) {
   const { error, importPkg } = this.bajo.helper
   const { isString } = await importPkg('lodash-es')
-  opts = opts ?? { abortEarly: false, convert: false, rule: undefined }
+  opts = opts ?? { abortEarly: false, convert: false, rule: undefined, allowUnknown: true }
   const { rule } = opts
   if (isString(joiSchema)) joiSchema = await buildFromDbSchema.call(this, joiSchema, { fields, rule })
   if (!joiSchema) return value
   try {
     return await joiSchema.validateAsync(value, opts)
   } catch (err) {
+    console.log(err)
     throw error('Validation Error', { details: err.details, ns, statusCode: 422 })
   }
 }
