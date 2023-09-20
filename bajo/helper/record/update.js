@@ -13,7 +13,14 @@ async function update (name, id, body, options = {}) {
     }
     const { validation = {} } = options
     const opts = { abortEarly: false, allowUnknown: true, convert: validation.convert ?? true, rule: validation.rule }
-    body = await validate(body, name, { ns: validation.ns, fields: keys(body), opts })
+    try {
+      body = await validate(body, name, { ns: validation.ns, fields: keys(body), opts })
+    } catch (err) {
+      if (err.code === 'DB_VALIDATION' && get(options, 'req.flash')) {
+        options.req.flash('validation', err)
+      }
+      throw err
+    }
     if (!skipHook) {
       await runHook('bajoDb:onAfterRecordValidation', name, body, options)
       await runHook(`bajoDb.${name}:onAfterRecordValidation`, body, options)

@@ -21,7 +21,7 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
   const { getInfo } = this.bajoDb.helper
   const { schema } = await getInfo(repo)
   // if (schema.validation) return schema.validation
-  const { isPlainObject, get, each, isEmpty, isString, forOwn, keys, find, isArray } = await importPkg('lodash-es')
+  const { isPlainObject, get, each, isEmpty, isString, forOwn, keys, find, isArray, has } = await importPkg('lodash-es')
   const obj = {}
 
   function getRuleKv (rule) {
@@ -39,20 +39,20 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
   }
 
   function applyFieldRules (prop, obj) {
-    const has = { min: false, max: false }
+    const minMax = { min: false, max: false }
     const rules = get(rule, prop.name, prop.rules ?? [])
     if (!isArray(rules)) return rules
     each(rules, r => {
       const types = validator[propType[prop.type].validator]
       const { key, value } = getRuleKv(r)
       if (!key || !types.includes(key)) return undefined
-      if (keys(has).includes(key)) has[key] = true
+      if (keys(minMax).includes(key)) minMax[key] = true
       obj = obj[key](value)
     })
     if (['string', 'text'].includes(prop.type)) {
-      forOwn(has, (v, k) => {
+      forOwn(minMax, (v, k) => {
         if (v) return undefined
-        if (prop[`${k}Length`]) obj = obj[k](prop[`${k}Length`])
+        if (has(prop, `${k}Length`)) obj = obj[k](prop[`${k}Length`])
       })
     }
     if (!['id'].includes(prop.name) && prop.required) obj = obj.required()
@@ -88,7 +88,7 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
         item = applyFieldRules(p, joi.boolean())
         break
     }
-    if (item) obj[p.name] = item
+    if (item) obj[p.name] = item.allow(null)
   }
   if (isEmpty(obj)) return false
   each(get(schema, 'globalRules', []), r => {
@@ -111,8 +111,9 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
 }
 
 async function validate (value, joiSchema, { ns = ['bajoDb'], fields, opts } = {}) {
-  const { error, importPkg } = this.bajo.helper
+  const { error, importPkg, getConfig } = this.bajo.helper
   const { isString } = await importPkg('lodash-es')
+  const cfg = getConfig()
   opts = opts ?? { abortEarly: false, convert: false, rule: undefined, allowUnknown: true }
   const { rule } = opts
   if (isString(joiSchema)) joiSchema = await buildFromDbSchema.call(this, joiSchema, { fields, rule })
@@ -120,8 +121,8 @@ async function validate (value, joiSchema, { ns = ['bajoDb'], fields, opts } = {
   try {
     return await joiSchema.validateAsync(value, opts)
   } catch (err) {
-    console.log(err)
-    throw error('Validation Error', { details: err.details, ns, statusCode: 422 })
+    if (cfg.log.level === 'trace') console.log(err)
+    throw error('Validation Error', { details: err.details, ns, statusCode: 422, code: 'DB_VALIDATION' })
   }
 }
 
