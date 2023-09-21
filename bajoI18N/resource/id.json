@@ -51,6 +51,7 @@
   "Validation Error": "Kesalahan Validasi",
   "validation": {
     "any.required": "Harus diisi",
+    "any.only": "Harus sesuai dengan {{ref}}",
     "string.alphanum": "Harus berupa alfa numerik karakter saja",
     "string.base": "Harus berupa string",
     "string.base64": "Harus berupa string base64 yang valid",

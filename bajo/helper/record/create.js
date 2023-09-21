@@ -1,20 +1,20 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
+import checkUnique from '../../../lib/check-unique.js'
 
 async function create (name, body, options = {}) {
   const { generateId, runHook, importPkg } = this.bajo.helper
   const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get } = await importPkg('lodash-es')
-  const { fields, dataOnly = true, skipHook, ignoreHidden, skipValidation } = options
+  const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
   await repoExists(name, true)
   if (!skipValidation) {
     if (!skipHook) {
       await runHook('bajoDb:onBeforeRecordValidation', name, body, options)
       await runHook(`bajoDb.${name}:onBeforeRecordValidation`, body, options)
     }
-    const { validation = {} } = options
-    const opts = { abortEarly: false, allowUnknown: true, convert: validation.convert ?? true, rule: validation.rule }
+    const { validation } = options
     try {
-      body = await validate(body, name, { ns: validation.ns, opts })
+      body = await validate(body, name, validation)
     } catch (err) {
       if (err.code === 'DB_VALIDATION' && get(options, 'req.flash')) {
         options.req.flash('validation', err)
@@ -37,9 +37,15 @@ async function create (name, body, options = {}) {
     if (beforeCreate) await beforeCreate.call(this, { schema, body })
   }
   const newBody = await sanitizeBody({ body, schema })
-  // const newBody = body
   newBody.id = newBody.id ?? generateId()
-  const record = await handler.call(this, { schema, body: newBody, options })
+  await checkUnique.call(this, { schema, body: newBody })
+  let record
+  try {
+    record = await handler.call(this, { schema, body: newBody, options })
+  } catch (err) {
+    if (get(options, 'req.flash')) options.req.flash('dberr', err)
+    throw err
+  }
   if (!skipHook) {
     await runHook(`bajoDb.${name}:onAfterRecordCreate`, newBody, options, record)
     await runHook('bajoDb:onAfterRecordCreate', name, newBody, options, record)

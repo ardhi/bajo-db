@@ -16,12 +16,15 @@ const validator = {
   timestamp: ['timestamp']
 }
 
-async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
+async function buildFromDbSchema (repo, { fields = [], rule = {}, extProperties = [] } = {}) {
   const { importPkg } = this.bajo.helper
   const { getInfo } = this.bajoDb.helper
   const { schema } = await getInfo(repo)
   // if (schema.validation) return schema.validation
-  const { isPlainObject, get, each, isEmpty, isString, forOwn, keys, find, isArray, has } = await importPkg('lodash-es')
+  const {
+    isPlainObject, get, each, isEmpty, isString, forOwn, keys,
+    find, isArray, has, cloneDeep, concat
+  } = await importPkg('lodash-es')
   const obj = {}
 
   function getRuleKv (rule) {
@@ -42,24 +45,32 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
     const minMax = { min: false, max: false }
     const rules = get(rule, prop.name, prop.rules ?? [])
     if (!isArray(rules)) return rules
+    let isRef
     each(rules, r => {
       const types = validator[propType[prop.type].validator]
       const { key, value } = getRuleKv(r)
+      if (key === 'ref') {
+        isRef = true
+        obj = joi.ref(value)
+        return undefined
+      }
       if (!key || !types.includes(key)) return undefined
       if (keys(minMax).includes(key)) minMax[key] = true
       obj = obj[key](value)
     })
-    if (['string', 'text'].includes(prop.type)) {
+    if (!isRef && ['string', 'text'].includes(prop.type)) {
       forOwn(minMax, (v, k) => {
         if (v) return undefined
         if (has(prop, `${k}Length`)) obj = obj[k](prop[`${k}Length`])
       })
     }
-    if (!['id'].includes(prop.name) && prop.required) obj = obj.required()
+    if (!isRef && !['id'].includes(prop.name) && prop.required) obj = obj.required()
     return obj
   }
 
-  for (const p of schema.properties) {
+  const props = concat(cloneDeep(schema.properties), extProperties)
+
+  for (const p of props) {
     if (excludedTypes.includes(p.type) || excludedNames.includes(p.name)) continue
     if (fields.length > 0 && !fields.includes(p.name)) continue
     let item
@@ -88,12 +99,15 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
         item = applyFieldRules(p, joi.boolean())
         break
     }
-    if (item) obj[p.name] = item.allow(null)
+    if (item) {
+      if (item.$_root) obj[p.name] = item.allow(null)
+      else obj[p.name] = item
+    }
   }
   if (isEmpty(obj)) return false
   each(get(schema, 'globalRules', []), r => {
     each(keys(obj), k => {
-      const prop = find(schema.properties, { name: k })
+      const prop = find(props, { name: k })
       if (!prop) return undefined
       const types = validator[propType[prop.type].validator]
       const { key, value, columns = [] } = getRuleKv(r)
@@ -110,18 +124,18 @@ async function buildFromDbSchema (repo, { fields = [], rule = {} } = {}) {
   return result
 }
 
-async function validate (value, joiSchema, { ns = ['bajoDb'], fields, opts } = {}) {
-  const { error, importPkg, getConfig } = this.bajo.helper
+async function validate (value, joiSchema, { ns = ['bajoDb'], fields, extProperties, params } = {}) {
+  const { error, importPkg, getConfig, dump, defaultsDeep } = this.bajo.helper
   const { isString } = await importPkg('lodash-es')
   const cfg = getConfig()
-  opts = opts ?? { abortEarly: false, convert: false, rule: undefined, allowUnknown: true }
-  const { rule } = opts
-  if (isString(joiSchema)) joiSchema = await buildFromDbSchema.call(this, joiSchema, { fields, rule })
+  params = defaultsDeep(params, { abortEarly: false, convert: false, rule: undefined, allowUnknown: true })
+  const { rule } = params
+  if (isString(joiSchema)) joiSchema = await buildFromDbSchema.call(this, joiSchema, { fields, rule, extProperties })
   if (!joiSchema) return value
   try {
-    return await joiSchema.validateAsync(value, opts)
+    return await joiSchema.validateAsync(value, params)
   } catch (err) {
-    if (cfg.log.level === 'trace') console.log(err)
+    if (cfg.log.level === 'trace') dump(err.details)
     throw error('Validation Error', { details: err.details, ns, statusCode: 422, code: 'DB_VALIDATION' })
   }
 }

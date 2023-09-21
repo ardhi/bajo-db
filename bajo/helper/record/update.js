@@ -1,20 +1,21 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
+import checkUnique from '../../../lib/check-unique.js'
 
 async function update (name, id, body, options = {}) {
   const { runHook, importPkg } = this.bajo.helper
   const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get, keys } = await importPkg('lodash-es')
-  const { fields, dataOnly = true, skipHook, ignoreHidden, skipValidation } = options
+  const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
   await repoExists(name, true)
   if (!skipValidation) {
     if (!skipHook) {
       await runHook('bajoDb:onBeforeRecordValidation', name, body, options)
       await runHook(`bajoDb.${name}:onBeforeRecordValidation`, body, options)
     }
-    const { validation = {} } = options
-    const opts = { abortEarly: false, allowUnknown: true, convert: validation.convert ?? true, rule: validation.rule }
+    const { validation } = options
+    validation.fields = keys(body)
     try {
-      body = await validate(body, name, { ns: validation.ns, fields: keys(body), opts })
+      body = await validate(body, name, validation)
     } catch (err) {
       if (err.code === 'DB_VALIDATION' && get(options, 'req.flash')) {
         options.req.flash('validation', err)
@@ -38,7 +39,14 @@ async function update (name, id, body, options = {}) {
   }
   const newBody = await sanitizeBody({ body, schema, partial: true })
   delete newBody.id
-  const result = await handler.call(this, { schema, id, body: newBody, options })
+  await checkUnique.call(this, { schema, body: newBody, id })
+  let result
+  try {
+    result = await handler.call(this, { schema, id, body: newBody, options })
+  } catch (err) {
+    if (get(options, 'req.flash')) options.req.flash('dberr', err)
+    throw err
+  }
   if (!skipHook) {
     await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, newBody, options, result)
     await runHook('bajoDb:onAfterRecordUpdate', name, id, newBody, options, result)
