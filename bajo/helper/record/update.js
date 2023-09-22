@@ -2,7 +2,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 import checkUnique from '../../../lib/check-unique.js'
 
 async function update (name, id, body, options = {}) {
-  const { runHook, importPkg } = this.bajo.helper
+  const { runHook, importPkg, print } = this.bajo.helper
   const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get, keys } = await importPkg('lodash-es')
   const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
@@ -40,20 +40,21 @@ async function update (name, id, body, options = {}) {
   const newBody = await sanitizeBody({ body, schema, partial: true })
   delete newBody.id
   await checkUnique.call(this, { schema, body: newBody, id })
-  let result
+  let record
   try {
-    result = await handler.call(this, { schema, id, body: newBody, options })
+    record = await handler.call(this, { schema, id, body: newBody, options })
+    if (get(options, 'req.flash')) options.req.flash('dbsuccess', { message: print.__('Record successfully updated', { ns: 'bajoDb' }), record })
   } catch (err) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
   }
   if (!skipHook) {
-    await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, newBody, options, result)
-    await runHook('bajoDb:onAfterRecordUpdate', name, id, newBody, options, result)
+    await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, newBody, options, record)
+    await runHook('bajoDb:onAfterRecordUpdate', name, id, newBody, options, record)
   }
-  result.oldData = await pickRecord({ record: result.oldData, fields, schema, ignoreHidden })
-  result.data = await pickRecord({ record: result.data, fields, schema, ignoreHidden })
-  return dataOnly ? result.data : result
+  record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
+  record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
+  return dataOnly ? record.data : record
 }
 
 export default update

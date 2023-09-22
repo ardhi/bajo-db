@@ -2,7 +2,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 import checkUnique from '../../../lib/check-unique.js'
 
 async function create (name, body, options = {}) {
-  const { generateId, runHook, importPkg } = this.bajo.helper
+  const { generateId, runHook, importPkg, print } = this.bajo.helper
   const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
   const { get } = await importPkg('lodash-es')
   const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
@@ -42,6 +42,7 @@ async function create (name, body, options = {}) {
   let record
   try {
     record = await handler.call(this, { schema, body: newBody, options })
+    if (get(options, 'req.flash')) options.req.flash('dbsuccess', { message: print.__('Record successfully created', { ns: 'bajoDb' }), record })
   } catch (err) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
