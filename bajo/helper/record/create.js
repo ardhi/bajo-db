@@ -1,5 +1,6 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
 import checkUnique from '../../../lib/check-unique.js'
+import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 
 async function create (name, body, options = {}) {
   const { generateId, runHook, importPkg, print } = this.bajo.helper
@@ -12,7 +13,7 @@ async function create (name, body, options = {}) {
       await runHook('bajoDb:onBeforeRecordValidation', name, body, options)
       await runHook(`bajoDb.${name}:onBeforeRecordValidation`, body, options)
     }
-    const { validation } = options
+    const { validation = {} } = options
     try {
       body = await validate(body, name, validation)
     } catch (err) {
@@ -42,7 +43,10 @@ async function create (name, body, options = {}) {
   let record
   try {
     record = await handler.call(this, { schema, body: newBody, options })
-    if (get(options, 'req.flash')) options.req.flash('dbsuccess', { message: print.__('Record successfully created', { ns: 'bajoDb' }), record })
+    if (options.req) {
+      if (options.req.file) await handleAttachmentUpload.call(this, { schema, id: newBody.id, body: newBody, options, action: 'create' })
+      if (options.req.flash) options.req.flash('dbsuccess', { message: print.__('Record successfully created', { ns: 'bajoDb' }), record })
+    }
   } catch (err) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
