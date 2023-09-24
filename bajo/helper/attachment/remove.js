@@ -1,29 +1,9 @@
-async function attachment (name, id, options = {}) {
-  const { importPkg, getPluginDataDir } = this.bajo.helper
-  const { map, pick } = await importPkg('lodash-es')
-  const [fs, fastGlob, mime] = await importPkg('fs-extra', 'fast-glob', 'bajo-web:mime')
-  const dir = `${getPluginDataDir('bajoDb')}/attachment/${name}/${id}`
-  const files = await fastGlob(`${dir}/**/*`)
-  const { fullPath, stats, mimeType } = options
-  return map(files, f => {
-    const item = f.replace(dir, '')
-    let [, field, file] = item.split('/')
-    if (!file) {
-      file = field
-      field = null
-    }
-    const rec = {
-      field,
-      file
-    }
-    if (mimeType) rec.mimeType = mime.getType(file)
-    if (fullPath) rec.fullPath = f
-    if (stats) {
-      const s = fs.statSync(f)
-      rec.stats = pick(s, ['size', 'atime', 'ctime', 'mtime'])
-    }
-    return rec
-  })
+async function remove (name, id, field, file, options = {}) {
+  const { importPkg } = this.bajo.helper
+  const { attachmentGetPath } = this.bajoDb.helper
+  const fs = await importPkg('fs-extra')
+  const path = await attachmentGetPath(name, id, field, file)
+  await fs.remove(path)
 }
 
-export default attachment
+export default remove

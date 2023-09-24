@@ -1,7 +1,8 @@
 async function getInfo (name) {
-  const { importPkg, error } = this.bajo.helper
+  const { importPkg, error, pascalCase } = this.bajo.helper
   const { find, map, isPlainObject } = await importPkg('lodash-es')
   if (isPlainObject(name)) name = name.name
+  name = pascalCase(name)
   const schema = find(this.bajoDb.schemas, { name })
   if (!schema) throw error('Unknown repo/schema \'%s\'', name)
   const conn = find(this.bajoDb.connections, { name: schema.connection })
