@@ -35,7 +35,7 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
     })
     if (!isSet(result[p.name]) && p.default) {
       result[p.name] = p.default
-      if (p.default.startsWith('helper:')) {
+      if (isString(p.default) && p.default.startsWith('helper:')) {
         const helper = p.default.split(':')[1]
         const method = get(this, helper)
         if (method) result[p.name] = await this[method]()

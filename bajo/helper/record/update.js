@@ -45,7 +45,7 @@ async function update (name, id, body, options = {}) {
   try {
     record = await handler.call(this, { schema, id, body: newBody, options })
     if (options.req) {
-      if (options.req.file) await handleAttachmentUpload.call(this, { schema, id, body: newBody, options, action: 'update' })
+      if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, body: newBody, options, action: 'update' })
       if (options.req.flash) options.req.flash('dbsuccess', { message: print.__('Record successfully updated', { ns: 'bajoDb' }), record })
     }
   } catch (err) {

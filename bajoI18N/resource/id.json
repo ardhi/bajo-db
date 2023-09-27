@@ -46,7 +46,22 @@
   "Finding record(s)": "Temukan data",
   "Record '%s@%s' exists already!": "Data '%s@%s' sudah ada",
   "field": {
-    "username": "Nama Pengguna"
+    "username": "Nama Pengguna",
+    "password": "Kata Sandi",
+    "password2": "Ulangi Kata Sandi",
+    "createdAt": "Dibuat Pada",
+    "updatedAt": "Diubah Pada",
+    "firstName": "Nama Depan",
+    "lastName": "Nama Belakang",
+    "address1": "Baris Pertama Alamat",
+    "address2": "Baris Kedua Alamat",
+    "city": "Nama Kota",
+    "zipCode": "Kode Pos",
+    "provinceState": "Propinsi/Negara Bagian",
+    "country": "Negara",
+    "phone": "Telepon",
+    "email": "Surel",
+    "key": "Kunci"
   },
   "Validation Error": "Kesalahan Validasi",
   "validation": {

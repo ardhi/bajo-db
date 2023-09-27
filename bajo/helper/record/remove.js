@@ -13,7 +13,7 @@ async function remove (name, id, options = {}) {
   }
   const record = await handler.call(this, { schema, id, options })
   if (options.req) {
-    if (options.req.file) await handleAttachmentUpload.call(this, { schema, id, options, action: 'remove' })
+    if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, options, action: 'remove' })
     if (options.req.flash) options.req.flash('dbsuccess', { message: print.__('Record successfully removed', { ns: 'bajoDb' }), record })
   }
   if (!skipHook) {

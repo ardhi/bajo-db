@@ -44,7 +44,7 @@ async function create (name, body, options = {}) {
   try {
     record = await handler.call(this, { schema, body: newBody, options })
     if (options.req) {
-      if (options.req.file) await handleAttachmentUpload.call(this, { schema, id: newBody.id, body: newBody, options, action: 'create' })
+      if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id: newBody.id, body: newBody, options, action: 'create' })
       if (options.req.flash) options.req.flash('dbsuccess', { message: print.__('Record successfully created', { ns: 'bajoDb' }), record })
     }
   } catch (err) {
