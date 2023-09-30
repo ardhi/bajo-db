@@ -19,6 +19,7 @@ async function findRecord (path, args, options) {
       message: print.__('Please enter a query (if any):')
     })
   }
+  if (isEmpty(query)) query = {}
   const filter = pick(config, ['page', 'offset', 'pageSize', 'sort', 'limit'])
   filter.pageSize = filter.pageSize ?? filter.limit
   filter.query = query
