@@ -8,10 +8,10 @@ async function start (conns, noRebuild) {
   else conns = map(conns, c => find(this.bajoDb.connections, { name: c }))
   for (const c of conns) {
     const driver = find(this.bajoDb.drivers, { driver: c.driver, type: c.type })
-    const opts = getConfig(driver.provider, { full: true })
+    const cfg = getConfig(driver.provider, { full: true })
     const schemas = filter(this.bajoDb.schemas, { connection: c.name })
     try {
-      const mod = await importModule(`${opts.dir}/bajoDb/boot/instantiation.js`)
+      const mod = await importModule(`${cfg.dir.pkg}/bajoDb/boot/instantiation.js`)
       await mod.call(this, { connection: c, noRebuild, schemas })
       for (const s of schemas) {
         if (c.memory || s.memory) await addFixtures.call(this, s.name)

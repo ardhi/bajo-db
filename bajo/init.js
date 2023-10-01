@@ -23,9 +23,9 @@ async function handler ({ item, index, options }) {
     return false
   }
   if (!has(conn, 'name')) conn.name = 'default'
-  const opts = getConfig(type.provider, { full: true })
+  const cfg = getConfig(type.provider, { full: true })
   if (!sanitizer[type.provider]) {
-    const file = `${opts.dir}/bajoDb/boot/sanitizer.js`
+    const file = `${cfg.dir.pkg}/bajoDb/boot/sanitizer.js`
     if (fs.existsSync(file)) sanitizer[type.provider] = await importModule(file)
     else sanitizer[type.provider] = defSanitizer
   }
