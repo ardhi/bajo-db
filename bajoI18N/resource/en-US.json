@@ -15,7 +15,16 @@
     "country": "Country",
     "phone": "Phone",
     "email": "Email",
-    "key": "Key"
+    "key": "Key",
+    "id": "ID",
+    "name": "Name",
+    "phoneCode": "Phone Code",
+    "iso3": "ISO 3",
+    "capital": "Capital",
+    "currency": "Currency",
+    "mmsi": "MMSI",
+    "ioc": "IOC",
+    "bbox": "BBOX"
   },
   "validation": {
     "any.required": "Harus diisi",

@@ -61,7 +61,16 @@
     "country": "Negara",
     "phone": "Telepon",
     "email": "Surel",
-    "key": "Kunci"
+    "key": "Kunci",
+    "id": "ID",
+    "name": "Nama",
+    "phoneCode": "Kode Telpon",
+    "iso3": "ISO 3",
+    "capital": "Ibu Kota",
+    "currency": "Mata Uang",
+    "mmsi": "MMSI",
+    "ioc": "IOC",
+    "bbox": "BBOX"
   },
   "Validation Error": "Kesalahan Validasi",
   "validation": {
