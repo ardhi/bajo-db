@@ -2,10 +2,10 @@ import handleAttachmentUpload from '../../../../../../../lib/handle-attachment-u
 
 async function update (ctx, req, reply) {
   const { attachmentRemove } = this.bajoDb.helper
-  const { repo, id, field, file } = req.params
+  const { coll, id, field, file } = req.params
   const { mimeType, stats } = req.query
-  await attachmentRemove(repo, id, field, file)
-  const result = await handleAttachmentUpload.call(this, { name: repo, id, options: { req, mimeType, stats, setField: field, setFile: file } })
+  await attachmentRemove(coll, id, field, file)
+  const result = await handleAttachmentUpload.call(this, { name: coll, id, options: { req, mimeType, stats, setField: field, setFile: file } })
   return { data: result[0] }
 }
 

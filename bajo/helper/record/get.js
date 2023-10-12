@@ -2,9 +2,9 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 
 async function get (name, id, options = {}) {
   const { runHook } = this.bajo.helper
-  const { pickRecord, repoExists } = this.bajoDb.helper
+  const { pickRecord, collExists } = this.bajoDb.helper
   const { fields, dataOnly = true, skipHook, ignoreHidden } = options
-  await repoExists(name, true)
+  await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'get')
   options.dataOnly = false
   if (!skipHook) {

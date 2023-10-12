@@ -4,11 +4,11 @@ async function exists (name, thrown) {
   const { getConfig, importModule } = this.bajo.helper
   const { driver, schema } = await getInfo(name)
   const cfg = getConfig(driver.provider, { full: true })
-  const mod = await importModule(`${cfg.dir.pkg}/bajoDb/method/repo/exists.js`)
-  await runHook('bajoDb:beforeRepoExists' + name, schema)
+  const mod = await importModule(`${cfg.dir.pkg}/bajoDb/method/coll/exists.js`)
+  await runHook('bajoDb:beforeCollExists' + name, schema)
   const exist = await mod.call(this, schema)
-  await runHook('bajoDb:afterRepoExists' + name, schema, exist)
-  if (!exist && thrown) throw error('Repository doesn\'t exist yet. Please do repository rebuild first')
+  await runHook('bajoDb:afterCollExists' + name, schema, exist)
+  if (!exist && thrown) throw error('Collection doesn\'t exist yet. Please do collection rebuild first')
   return exist
 }
 

@@ -4,10 +4,10 @@ import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 
 async function create (name, body, options = {}) {
   const { generateId, runHook, importPkg, print } = this.bajo.helper
-  const { pickRecord, sanitizeBody, repoExists, validate } = this.bajoDb.helper
+  const { pickRecord, sanitizeBody, collExists, validate } = this.bajoDb.helper
   const { get } = await importPkg('lodash-es')
   const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
-  await repoExists(name, true)
+  await collExists(name, true)
   if (!skipValidation) {
     if (!skipHook) {
       await runHook('bajoDb:onBeforeRecordValidation', name, body, options)

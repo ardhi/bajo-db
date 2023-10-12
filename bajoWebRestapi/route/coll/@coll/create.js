@@ -5,9 +5,9 @@ const create = {
   },
   schema: async function (ctx, parentCtx) {
     const { docSchemaParams } = this.bajoWebRestapi.helper
-    await docSchemaParams(parentCtx, 'paramsRepo', 'repo||Repository ID')
+    await docSchemaParams(parentCtx, 'paramsColl', 'coll||Collection ID')
     return {
-      params: { $ref: 'paramsRepo#' },
+      params: { $ref: 'paramsColl#' },
       querystring: { $ref: 'qsFields#' }
     }
   }

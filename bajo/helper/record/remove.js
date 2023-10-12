@@ -3,9 +3,9 @@ import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 
 async function remove (name, id, options = {}) {
   const { runHook, print } = this.bajo.helper
-  const { pickRecord, repoExists } = this.bajoDb.helper
+  const { pickRecord, collExists } = this.bajoDb.helper
   const { fields, dataOnly = true, skipHook, ignoreHidden } = options
-  await repoExists(name, true)
+  await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'remove')
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordRemove', name, id, options)

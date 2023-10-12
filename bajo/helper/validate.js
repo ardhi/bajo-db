@@ -16,10 +16,10 @@ const validator = {
   timestamp: ['timestamp']
 }
 
-async function buildFromDbSchema (repo, { fields = [], rule = {}, extProperties = [] } = {}) {
+async function buildFromDbSchema (coll, { fields = [], rule = {}, extProperties = [] } = {}) {
   const { importPkg } = this.bajo.helper
   const { getInfo } = this.bajoDb.helper
-  const { schema } = await getInfo(repo)
+  const { schema } = await getInfo(coll)
   // if (schema.validation) return schema.validation
   const {
     isPlainObject, get, each, isEmpty, isString, forOwn, keys,

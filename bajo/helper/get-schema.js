@@ -4,7 +4,7 @@ async function getSchema (name) {
   if (isPlainObject(name)) name = name.name
   name = pascalCase(name)
   const schema = find(this.bajoDb.schemas, { name })
-  if (!schema) throw error('Unknown repo/schema \'%s\'', name)
+  if (!schema) throw error('Unknown coll/schema \'%s\'', name)
   return schema
 }
 

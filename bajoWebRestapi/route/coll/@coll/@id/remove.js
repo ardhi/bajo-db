@@ -5,9 +5,9 @@ const remove = {
   },
   schema: async function (ctx, parentCtx) {
     const { docSchemaParams } = this.bajoWebRestapi.helper
-    await docSchemaParams(parentCtx, 'paramsRepoId', 'repo||Repository ID', 'id||Record ID')
+    await docSchemaParams(parentCtx, 'paramsCollId', 'coll||Collection ID', 'id||Record ID')
     return {
-      params: { $ref: 'paramsRepoId#' },
+      params: { $ref: 'paramsCollId#' },
       querystring: { $ref: 'qsFields#' }
     }
   }
