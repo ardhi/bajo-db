@@ -1,5 +1,4 @@
 import joi from 'joi'
-import propType from '../../lib/prop-type.js'
 
 const excludedTypes = ['object']
 const excludedNames = []
@@ -18,7 +17,7 @@ const validator = {
 
 async function buildFromDbSchema (coll, { fields = [], rule = {}, extProperties = [] } = {}) {
   const { importPkg } = this.bajo.helper
-  const { getInfo } = this.bajoDb.helper
+  const { getInfo, propType } = this.bajoDb.helper
   const { schema } = await getInfo(coll)
   // if (schema.validation) return schema.validation
   const {
