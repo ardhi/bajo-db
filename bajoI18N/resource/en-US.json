@@ -38,7 +38,8 @@
     "picRole": "PIC Role",
     "picPhone": "PIC Phone",
     "picEmail": "PIC Email",
-    "website": "Website"
+    "website": "Website",
+    "alias": "Alias"
   },
   "validation": {
     "any.required": "Harus diisi",

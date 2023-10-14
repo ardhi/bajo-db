@@ -47,6 +47,9 @@ async function prepPagination (filter = {}, schema) {
       const indexes = map(_filter(schema.properties, p => {
         return (!!p.index) || (!!p.primary)
       }), 'name')
+      each(schema.indexes, item => {
+        indexes.push(...item.fields)
+      })
       const items = keys(sort)
       each(items, i => {
         if (!indexes.includes(i)) throw error('Sort on unindexed field: \'%s@%s\'', i, schema.name)

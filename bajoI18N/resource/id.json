@@ -84,7 +84,8 @@
     "picRole": "Peran PJ",
     "picPhone": "Telpon PJ",
     "picEmail": "Surel PJ",
-    "website": "Alamat Situs"
+    "website": "Alamat Situs",
+    "alias": "Alias"
   },
   "Validation Error": "Kesalahan Validasi",
   "validation": {
