@@ -39,7 +39,15 @@
     "picPhone": "PIC Phone",
     "picEmail": "PIC Email",
     "website": "Website",
-    "alias": "Alias"
+    "alias": "Alias",
+    "twitter": "Twitter",
+    "instagram": "Instagram",
+    "linkedIn": "Linked In",
+    "facebook": "Faceboook",
+    "userId": "User ID",
+    "siteId": "Site ID",
+    "theme": "Theme",
+    "token": "Token"
   },
   "validation": {
     "any.required": "Harus diisi",

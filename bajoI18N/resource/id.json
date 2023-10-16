@@ -85,7 +85,15 @@
     "picPhone": "Telpon PJ",
     "picEmail": "Surel PJ",
     "website": "Alamat Situs",
-    "alias": "Alias"
+    "alias": "Alias",
+    "twitter": "Twitter",
+    "instagram": "Instagram",
+    "linkedIn": "Linked In",
+    "facebook": "Faceboook",
+    "userId": "ID Pengguna",
+    "siteId": "ID Situs",
+    "theme": "Tema",
+    "token": "Token"
   },
   "Validation Error": "Kesalahan Validasi",
   "validation": {
