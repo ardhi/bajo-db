@@ -1,4 +1,4 @@
-async function sanitizeBody ({ body = {}, schema = {}, partial }) {
+async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
   const { importPkg, error, isSet, dayjs } = this.bajo.helper
   const { has, get, each, isString } = await importPkg('lodash-es')
   const result = {}
@@ -22,8 +22,22 @@ async function sanitizeBody ({ body = {}, schema = {}, partial }) {
       throw error('Field \'%s@%s\' is required', p.name, schema.name, { code: 'BAJODB_FIELD_REQUIRED' })
     }
     */
-    if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(body[p.name]) || null
-    if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(body[p.name]) || null
+    if (['float', 'double'].includes(p.type)) {
+      if (strict) {
+        const parsed = Number(body[p.name])
+        result[p.name] = isNaN(parsed) ? body[p.name] : parsed
+      } else {
+        result[p.name] = parseFloat(body[p.name]) || null
+      }
+    }
+    if (['integer', 'smallint'].includes(p.type)) {
+      if (strict) {
+        const parsed = Number(body[p.name])
+        result[p.name] = isNaN(parsed) ? body[p.name] : parsed
+      } else {
+        result[p.name] = parseInt(body[p.name]) || null
+      }
+    }
     if (p.type === 'boolean') result[p.name] = result[p.name] === null ? null : (!!result[p.name])
     each(['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss'], t => {
       const [type, format] = t.split('|')
