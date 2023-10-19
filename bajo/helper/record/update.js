@@ -12,7 +12,6 @@ async function update (name, id, input, options = {}) {
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   let body = await sanitizeBody({ body: input, schema, partial: true, strict: true })
   delete body.id
-  console.log(body)
   if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial: true })
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
