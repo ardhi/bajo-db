@@ -13,7 +13,7 @@ async function copyUploaded (name, id, { req, setField, setFile, mimeType, stats
     if (parts.length === 0) continue
     field = setField ?? field
     const file = setFile ?? parts.join('-')
-    const opts = { source: f, field, file, mimeType, stats }
+    const opts = { source: f, field, file, mimeType, stats, req }
     const rec = await attachmentCreate(name, id, opts)
     delete rec.dir
     result.push(rec)

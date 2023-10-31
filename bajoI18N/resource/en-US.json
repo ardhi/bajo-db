@@ -47,7 +47,8 @@
     "userId": "User ID",
     "siteId": "Site ID",
     "theme": "Theme",
-    "token": "Token"
+    "token": "Token",
+    "field": "Field"
   },
   "validation": {
     "any.required": "Harus diisi",

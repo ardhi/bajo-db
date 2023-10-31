@@ -7,7 +7,7 @@ async function create (name, id, options = {}) {
   const { source, field, file } = options
   if (!source) throw error('Invalid source')
   const baseDir = await attachmentGetPath(name, id, field, file, { dirOnly: true })
-  const { fullPath, stats, mimeType } = options
+  const { fullPath, stats, mimeType, req } = options
 
   let dir = `${baseDir}/${field}`
   if ((field || '').endsWith('[]')) dir = `${baseDir}/${field.replace('[]', '')}`
@@ -20,6 +20,7 @@ async function create (name, id, options = {}) {
     file
   }
   await mergeAttachmentInfo.call(this, rec, dest, { mimeType, fullPath, stats })
+  if (req && req.flash) req.flash('dbsuccess', { message: req.i18n.t('File successfully uploaded') })
   return rec
 }
 
