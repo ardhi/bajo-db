@@ -1,20 +1,17 @@
-const createdAt = {
-  addProps: async function (opts) {
-    if (opts === true) opts = { fieldName: 'createdAt' }
-    return {
-      name: opts.fieldName ?? 'createdAt',
+async function createdAt (opts = {}) {
+  opts.fieldName = opts.fieldName ?? 'createdAt'
+  return {
+    properties: {
+      name: opts.fieldName,
       type: 'datetime',
       index: true
-    }
-  },
-  hook: {
-    beforeCreate: async function ({ schema, body }) {
-      const { isSet, importPkg } = this.bajo.helper
-      const { get } = await importPkg('lodash-es')
-      const now = new Date()
-      const overwrite = get(schema, 'feature.createdAt.overwrite')
-      const field = get(schema, 'feature.createdAt.fieldName', 'createdAt')
-      if (overwrite || !isSet(body[field])) body[field] = now
+    },
+    hook: {
+      beforeCreate: async function ({ body }) {
+        const { isSet } = this.bajo.helper
+        const now = new Date()
+        if (opts.overwrite || !isSet(body[opts.fieldName])) body[opts.fieldName] = now
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-async function drop (name) {
+async function drop (name, spinner) {
   const { getConfig, importModule, runHook } = this.bajo.helper
   const { getInfo } = this.bajoDb.helper
   const { driver, schema } = await getInfo(name)

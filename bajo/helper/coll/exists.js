@@ -1,4 +1,4 @@
-async function exists (name, thrown) {
+async function exists (name, thrown, spinner) {
   const { error, runHook } = this.bajo.helper
   const { getInfo } = this.bajoDb.helper
   const { getConfig, importModule } = this.bajo.helper

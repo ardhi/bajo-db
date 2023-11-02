@@ -35,8 +35,11 @@ async function handler ({ item, index, options }) {
 }
 
 async function init () {
-  const { buildCollections, log, print, eachPlugins, importPkg, freeze } = this.bajo.helper
+  const { buildCollections, log, print, eachPlugins, importPkg, freeze, getConfig } = this.bajo.helper
+  const fs = await importPkg('fs-extra')
   const { isEmpty, map } = await importPkg('lodash-es')
+  const cfg = getConfig('bajoDb', { full: true })
+  fs.ensureDirSync(`${cfg.dir.data}/attachment`)
   await collectDrivers.call(this)
   this.bajoDb.connections = await buildCollections({ handler, dupChecks: ['name'] })
   if (this.bajoDb.connections.length === 0) log.warn('No %s found!', print.__('connection'))

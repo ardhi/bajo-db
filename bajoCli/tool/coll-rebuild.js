@@ -41,11 +41,11 @@ async function buildModel (path, args) {
       result.skipped++
       continue
     }
-    const exists = await collExists(schema)
+    const exists = await collExists(schema, false, spinner)
     if (exists) {
       if (config.force) {
         try {
-          await collDrop(schema)
+          await collDrop(schema, spinner)
           spinner.setText('Model \'%s\' successfully dropped', schema.name)
         } catch (err) {
           spinner.fail('Error on dropping collection \'%s\': %s', schema.name, err.message)
@@ -59,10 +59,10 @@ async function buildModel (path, args) {
       }
     }
     try {
-      await collCreate(schema)
+      await collCreate(schema, spinner)
       if (connection.memory) spinner.succeed('Model \'%s\' successfully created', schema.name)
       else {
-        const fixture = await addFixtures.call(this, schema)
+        const fixture = await addFixtures.call(this, schema, spinner)
         spinner.succeed('Model \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
       }
       result.succed++
