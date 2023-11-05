@@ -37,7 +37,7 @@ async function buildModel (path, args) {
     const { schema, instance, connection } = await getInfo(s)
     const spinner = print.bora('Rebuilding \'%s\'...', schema.name).start()
     if (!instance) {
-      spinner.warn('No need to rebuild \'%s@%s\'. Skipped!', schema.connection, schema.name)
+      spinner.warn('Client instance not connected \'%s@%s\'. Skipped!', schema.connection, schema.name)
       result.skipped++
       continue
     }

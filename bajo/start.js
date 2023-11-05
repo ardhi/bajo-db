@@ -10,16 +10,12 @@ async function start (conns, noRebuild) {
     const driver = find(this.bajoDb.drivers, { driver: c.driver, type: c.type })
     const cfg = getConfig(driver.provider, { full: true })
     const schemas = filter(this.bajoDb.schemas, { connection: c.name })
-    try {
-      const mod = await importModule(`${cfg.dir.pkg}/bajoDb/boot/instantiation.js`)
-      await mod.call(this, { connection: c, noRebuild, schemas })
-      for (const s of schemas) {
-        if (c.memory || s.memory) await addFixtures.call(this, s.name)
-      }
-      log.trace('Driver \'%s@%s\' instantiated', c.driver, c.name)
-    } catch (err) {
-      log.error('Error on \'%s@%s\': %s', c.driver, c.name, err.message)
+    const mod = await importModule(`${cfg.dir.pkg}/bajoDb/boot/instantiation.js`)
+    await mod.call(this, { connection: c, noRebuild, schemas })
+    for (const s of schemas) {
+      if (c.memory || s.memory) await addFixtures.call(this, s.name)
     }
+    log.trace('Driver \'%s@%s\' instantiated', c.driver, c.name)
   }
 }
 
