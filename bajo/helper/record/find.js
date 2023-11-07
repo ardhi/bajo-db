@@ -1,19 +1,20 @@
 import buildRecordAction from '../../../lib/build-record-action.js'
 
-async function handleBboxQuery (filter, schema) {
+async function handleBboxQuery (filter, schema, options = {}) {
   const { importPkg } = this.bajo.helper
   const { merge } = await importPkg('lodash-es')
   const props = schema.properties.map(item => item.name)
-  if (filter.bbox && props.includes('lat') && props.includes('lng')) {
+  const { bboxLatField = 'lat', bboxLngField = 'lng' } = options
+  if (filter.bbox && props.includes(bboxLatField) && props.includes(bboxLngField)) {
     const [minx, miny, maxx, maxy] = filter.bbox
-    const lng = { $gte: minx, $lte: maxx }
-    const lat = { $gte: miny, $lte: maxy }
+    const q = {}
+    q[bboxLngField] = { $gte: minx, $lte: maxx }
+    q[bboxLatField] = { $gte: miny, $lte: maxy }
     if (filter.query) {
       const $or = filter.query.$or
-      if ($or) {
-        filter.query = { lat, lng, $or }
-      } else merge(filter.query, { lng, lat })
-    } else filter.query = { lng, lat }
+      if ($or) filter.query = merge(q, { $or })
+      else merge(filter.query, q)
+    } else filter.query = q
     delete filter.bbox
   }
 }
@@ -28,7 +29,7 @@ async function find (name, filter = {}, options = {}) {
     await runHook('bajoDb:onBeforeRecordFind', name, filter, options)
     await runHook(`bajoDb.${name}:onBeforeRecordFind`, filter, options)
   }
-  await handleBboxQuery.call(this, filter, schema)
+  await handleBboxQuery.call(this, filter, schema, options)
   const records = await handler.call(this, { schema, filter, options })
   if (!skipHook) {
     await runHook(`bajoDb.${name}:onAfterRecordFind`, filter, options, records)
