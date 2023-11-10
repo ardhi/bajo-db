@@ -3,34 +3,32 @@ import collectFeature from '../lib/collect-feature.js'
 import collectSchema from '../lib/collect-schema.js'
 import sanitizeSchema from '../lib/sanitize-schema.js'
 
-const sanitizer = {}
-async function defSanitizer (connection) {
-  return connection
+async function defSanitizer (item) {
+  const { importPkg, fatal } = this.bajo.helper
+  if (!item.connection) fatal('\'%s@%s\' key is required', 'connection', item.name, { payload: item })
+  const { merge } = await importPkg('lodash-es')
+  return merge({}, item)
 }
 
 async function handler ({ item, index, options }) {
   const conn = item
   const { importPkg, log, importModule, print, getConfig } = this.bajo.helper
   const { has, find } = await importPkg('lodash-es')
-  const fs = await importPkg('fs-extra')
   if (!has(conn, 'type')) {
     log.error('%s must have a valid DB type', print.__('Connection'))
     return false
   }
-  const type = find(this.bajoDb.drivers, { type: conn.type })
-  if (!type) {
+  const driver = find(this.bajoDb.drivers, { type: conn.type })
+  if (!driver) {
     log.error('Unsupported DB type \'%s\'', conn.type)
     return false
   }
   if (!has(conn, 'name')) conn.name = 'default'
-  const cfg = getConfig(type.provider, { full: true })
-  if (!sanitizer[type.provider]) {
-    const file = `${cfg.dir.pkg}/bajoDb/boot/sanitizer.js`
-    if (fs.existsSync(file)) sanitizer[type.provider] = await importModule(file)
-    else sanitizer[type.provider] = defSanitizer
-  }
-  const result = await sanitizer[type.provider].call(this, conn)
-  result.driver = type.driver
+  const cfg = getConfig(driver.provider, { full: true })
+  let sanitizer = await importModule(`${cfg.dir.pkg}/bajoDb/lib/${conn.type}/conn-sanitizer.js`)
+  if (!sanitizer) sanitizer = defSanitizer
+  const result = await sanitizer.call(this, conn)
+  result.driver = driver.driver
   return result
 }
 

@@ -6,12 +6,13 @@ import execValidation from '../../../lib/exec-validation.js'
 async function create (name, input, options = {}) {
   const { generateId, runHook, importPkg, print } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
-  const { get } = await importPkg('lodash-es')
+  const { get, find, forOwn } = await importPkg('lodash-es')
   const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   let body = await sanitizeBody({ body: input, schema, strict: true })
-  body.id = body.id ?? generateId()
+  const idField = find(schema.properties, { name: 'id' })
+  if (idField.type === 'string') body.id = body.id ?? generateId()
   if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options })
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
@@ -25,7 +26,11 @@ async function create (name, input, options = {}) {
   await checkUnique.call(this, { schema, body })
   let record
   try {
-    record = await handler.call(this, { schema, body, options })
+    const nbody = {}
+    forOwn(body, (v, k) => {
+      if (v !== undefined) nbody[k] = v
+    })
+    record = await handler.call(this, { schema, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id: body.id, body, options, action: 'create' })
       if (options.req.flash) options.req.flash('dbsuccess', { message: print.__('Record successfully created', { ns: 'bajoDb' }), record })

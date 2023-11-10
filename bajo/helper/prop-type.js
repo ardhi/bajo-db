@@ -16,14 +16,10 @@ const propType = {
     minLength: 0
   },
   float: {
-    validator: 'number',
-    precision: 8,
-    scale: 2
+    validator: 'number'
   },
   double: {
-    validator: 'number',
-    precision: 8,
-    scale: 2
+    validator: 'number'
   },
   boolean: {
     validator: 'boolean'

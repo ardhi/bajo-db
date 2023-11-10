@@ -67,6 +67,7 @@ async function buildModel (path, args) {
       }
       result.succed++
     } catch (err) {
+      if (config.log.tool && config.log.level === 'trace') console.error(err)
       spinner.fail('Error on creating \'%s\': %s', schema.name, err.message)
       result.failed++
     }

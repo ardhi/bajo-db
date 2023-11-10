@@ -5,11 +5,12 @@ import execValidation from '../../../lib/exec-validation.js'
 
 async function update (name, id, input, options = {}) {
   const { runHook, importPkg, print } = this.bajo.helper
-  const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
-  const { get } = await importPkg('lodash-es')
+  const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
+  const { get, forOwn } = await importPkg('lodash-es')
   const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
+  id = sanitizeId(id, schema)
   let body = await sanitizeBody({ body: input, schema, partial: true, strict: true })
   delete body.id
   if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial: true })
@@ -25,7 +26,12 @@ async function update (name, id, input, options = {}) {
   await checkUnique.call(this, { schema, body, id })
   let record
   try {
-    record = await handler.call(this, { schema, id, body, options })
+    const nbody = {}
+    forOwn(body, (v, k) => {
+      if (v !== undefined) nbody[k] = v
+    })
+    delete nbody.id
+    record = await handler.call(this, { schema, id, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, body, options, action: 'update' })
       if (options.req.flash) options.req.flash('dbsuccess', { message: print.__('Record successfully updated', { ns: 'bajoDb' }), record })
