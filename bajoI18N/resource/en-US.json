@@ -2,6 +2,7 @@
   "field": {
     "id": "ID",
     "name": "Name",
+    "dt": "Date/Time",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "title": "Title",

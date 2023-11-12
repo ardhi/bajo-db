@@ -1,6 +1,6 @@
 function sanitizeId (id, schema) {
   const prop = schema.properties.find(p => p.name === 'id')
-  if (['integer', 'smallint', 'bigint'].includes(prop.type)) id = parseInt(id)
+  if (prop.type === 'integer') id = parseInt(id)
   return id
 }
 

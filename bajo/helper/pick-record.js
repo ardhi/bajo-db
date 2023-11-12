@@ -1,4 +1,5 @@
 async function transform ({ record, schema, ignoreHidden } = {}) {
+  const { dayjs } = this.bajo.helper
   const { sanitizeBody } = this.bajoDb.helper
   if (record._id) {
     record.id = record._id
@@ -8,8 +9,13 @@ async function transform ({ record, schema, ignoreHidden } = {}) {
   for (const p of schema.properties) {
     if (p.hidden && !ignoreHidden) continue
     result[p.name] = record[p.name] ?? null
+    if (record[p.name] === null) continue
+    switch (p.type) {
+      case 'time': result[p.name] = dayjs(record[p.name]).format('HH:mm:ss'); break
+      case 'date': result[p.name] = dayjs(record[p.name]).format('YYYY-MM-DD'); break
+    }
   }
-  return await sanitizeBody({ body: result, schema, partial: true })
+  return await sanitizeBody({ body: result, schema, partial: true, ignoreNull: true })
 }
 
 async function pickRecord ({ record, fields, schema = {}, ignoreHidden } = {}) {

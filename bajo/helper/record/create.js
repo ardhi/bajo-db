@@ -2,6 +2,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 import checkUnique from '../../../lib/check-unique.js'
 import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 import execValidation from '../../../lib/exec-validation.js'
+import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function create (name, input, options = {}) {
   const { generateId, runHook, importPkg, print } = this.bajo.helper
@@ -10,19 +11,16 @@ async function create (name, input, options = {}) {
   const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
-  let body = await sanitizeBody({ body: input, schema, strict: true })
   const idField = find(schema.properties, { name: 'id' })
-  if (idField.type === 'string') body.id = body.id ?? generateId()
+  if (idField.type === 'string') input.id = input.id ?? generateId()
+  else if (idField.type === 'integer') input.id = input.id ?? generateId('int')
+  let body = await sanitizeBody({ body: input, schema, strict: true })
   if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options })
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordCreate`, body, options)
   }
-  for (const f in schema.feature) {
-    if (!schema.feature[f]) continue
-    const beforeCreate = get(this.bajoDb, `feature.${f}.hook.beforeCreate`)
-    if (beforeCreate) await beforeCreate.call(this, { schema, body })
-  }
+  await execFeatureHook.call(this, 'beforeCreate', { schema, body })
   await checkUnique.call(this, { schema, body })
   let record
   try {
@@ -39,6 +37,7 @@ async function create (name, input, options = {}) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
   }
+  await execFeatureHook.call(this, 'afterCreate', { schema, body, record })
   if (!skipHook) {
     await runHook(`bajoDb.${name}:onAfterRecordCreate`, body, options, record)
     await runHook('bajoDb:onAfterRecordCreate', name, body, options, record)

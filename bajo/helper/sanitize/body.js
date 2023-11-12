@@ -1,6 +1,7 @@
 async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
-  const { importPkg, error, isSet, dayjs } = this.bajo.helper
-  const { has, get, each, isString } = await importPkg('lodash-es')
+  const { importPkg, isSet, dayjs } = this.bajo.helper
+  const { sanitizeDate } = this.bajoDb.helper
+  const { has, get, isString, isNumber } = await importPkg('lodash-es')
   const result = {}
   for (const p of schema.properties) {
     if (partial && !has(body, p.name)) continue
@@ -17,45 +18,47 @@ async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
         } catch (err) {}
       }
     } else result[p.name] = body[p.name]
-    /* already handled by validator
-    if (p.required && !['id'].includes(p.name) && (!has(result, p.name) || !isSet(result[p.name]))) {
-      throw error('Field \'%s@%s\' is required', p.name, schema.name, { code: 'BAJODB_FIELD_REQUIRED' })
-    }
-    */
-    if (['float', 'double'].includes(p.type)) {
-      if (strict) {
-        const parsed = Number(body[p.name])
-        result[p.name] = isNaN(parsed) ? body[p.name] : parsed
-      } else {
-        result[p.name] = parseFloat(body[p.name]) || null
+    if (isSet(body[p.name])) {
+      if (p.type === 'boolean') result[p.name] = result[p.name] === null ? null : (!!result[p.name])
+      if (['float', 'double'].includes(p.type)) {
+        if (isNumber(body[p.name])) result[p.name] = body[p.name]
+        else if (strict) {
+          result[p.name] = Number(body[p.name])
+        } else {
+          result[p.name] = parseFloat(body[p.name]) || null
+        }
       }
-    }
-    if (['integer', 'smallint'].includes(p.type)) {
-      if (strict) {
-        const parsed = Number(body[p.name])
-        result[p.name] = isNaN(parsed) ? body[p.name] : parsed
-      } else {
-        result[p.name] = parseInt(body[p.name]) || null
+      if (['integer', 'smallint'].includes(p.type)) {
+        if (isNumber(body[p.name])) result[p.name] = body[p.name]
+        else if (strict) {
+          result[p.name] = Number(body[p.name])
+        } else {
+          result[p.name] = parseInt(body[p.name]) || null
+        }
       }
-    }
-    if (p.type === 'boolean') result[p.name] = result[p.name] === null ? null : (!!result[p.name])
-    each(['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss'], t => {
-      const [type, format] = t.split('|')
-      if (p.type === type) {
-        const dt = dayjs(body[p.name], format)
-        if (!dt.isValid()) throw error('Can\'t parse \'%s\' as %s value', body[p.name], type)
-        result[p.name] = dt.toDate()
-      }
-    })
-    if (!isSet(result[p.name]) && p.default) {
-      result[p.name] = p.default
-      if (isString(p.default) && p.default.startsWith('helper:')) {
-        const helper = p.default.split(':')[1]
-        const method = get(this, helper)
-        if (method) result[p.name] = await this[method]()
+      if (p.type === 'timestamp') {
+        if (!isNumber(body[p.name])) result[p.name] = -1
+        else {
+          const dt = dayjs.unix(body[p.name])
+          result[p.name] = dt.isValid() ? dt.unix() : -1
+        }
       } else {
-        if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(result[p.name]) || null
-        if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(result[p.name]) || null
+        for (const t of ['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss']) {
+          const [type, input] = t.split('|')
+          if (p.type === type) result[p.name] = sanitizeDate(body[p.name], { input })
+        }
+      }
+    } else {
+      if (p.default) {
+        result[p.name] = p.default
+        if (isString(p.default) && p.default.startsWith('helper:')) {
+          const helper = p.default.split(':')[1]
+          const method = get(this, helper)
+          if (method) result[p.name] = await this[method]()
+        } else {
+          if (['float', 'double'].includes(p.type)) result[p.name] = parseFloat(result[p.name]) || null
+          if (['integer', 'smallint'].includes(p.type)) result[p.name] = parseInt(result[p.name]) || null
+        }
       }
     }
   }

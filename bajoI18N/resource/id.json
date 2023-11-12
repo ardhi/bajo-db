@@ -48,6 +48,7 @@
   "field": {
     "id": "ID",
     "name": "Nama",
+    "dt": "Tgl/Jam",
     "createdAt": "Dibuat Pada",
     "updatedAt": "Diubah Pada",
     "title": "Judul",

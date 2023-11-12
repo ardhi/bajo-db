@@ -15,10 +15,9 @@ const validator = {
   timestamp: ['timestamp']
 }
 
-async function buildFromDbSchema (coll, { fields = [], rule = {}, extProperties = [] } = {}) {
+async function buildFromDbSchema (schema, { fields = [], rule = {}, extProperties = [] } = {}) {
   const { importPkg } = this.bajo.helper
-  const { getInfo, propType } = this.bajoDb.helper
-  const { schema } = await getInfo(coll)
+  const { propType } = this.bajoDb.helper
   // if (schema.validation) return schema.validation
   const {
     isPlainObject, get, each, isEmpty, isString, forOwn, keys,
@@ -85,14 +84,16 @@ async function buildFromDbSchema (coll, { fields = [], rule = {}, extProperties 
         break
       case 'float':
       case 'double':
-        item = applyFieldRules(p, joi.number().precision(p.precision))
+        if (p.precision) item = applyFieldRules(p, joi.number().precision(p.precision))
+        else item = applyFieldRules(p, joi.number())
         break
+      case 'time':
       case 'date':
       case 'datetime':
         item = applyFieldRules(p, joi.date())
         break
       case 'timestamp':
-        item = applyFieldRules(p, joi.date())
+        item = applyFieldRules(p, joi.number().integer())
         break
       case 'boolean':
         item = applyFieldRules(p, joi.boolean())
@@ -124,17 +125,28 @@ async function buildFromDbSchema (coll, { fields = [], rule = {}, extProperties 
 }
 
 async function validate (value, joiSchema, { ns = ['bajoDb'], fields, extProperties, params } = {}) {
-  const { error, importPkg, getConfig, dump, defaultsDeep } = this.bajo.helper
-  const { isString } = await importPkg('lodash-es')
-  const cfg = getConfig()
+  const { error, importPkg, defaultsDeep, isSet } = this.bajo.helper
+  const { getInfo, sanitizeDate } = this.bajoDb.helper
+  const { isString, forOwn, find } = await importPkg('lodash-es')
   params = defaultsDeep(params, { abortEarly: false, convert: false, rule: undefined, allowUnknown: true })
   const { rule } = params
-  if (isString(joiSchema)) joiSchema = await buildFromDbSchema.call(this, joiSchema, { fields, rule, extProperties })
+  if (isString(joiSchema)) {
+    const { schema } = await getInfo(joiSchema)
+    forOwn(value, (v, k) => {
+      if (!isSet(v)) return undefined
+      const p = find(schema.properties, { name: k })
+      if (!p) return undefined
+      for (const t of ['date|YYYY-MM-DD', 'time|HH:mm:ss']) {
+        const [type, input] = t.split('|')
+        if (p.type === type) value[k] = sanitizeDate(value[k], { input, output: 'native' })
+      }
+    })
+    joiSchema = await buildFromDbSchema.call(this, schema, { fields, rule, extProperties })
+  }
   if (!joiSchema) return value
   try {
     return await joiSchema.validateAsync(value, params)
   } catch (err) {
-    if (cfg.log.level === 'trace') dump(err.details)
     throw error('Validation Error', { details: err.details, ns, statusCode: 422, code: 'DB_VALIDATION' })
   }
 }

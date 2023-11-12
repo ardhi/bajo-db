@@ -1,13 +1,13 @@
-async function autoIncId (opts = {}) {
+async function intId (opts = {}) {
   return {
     properties: [{
       name: 'id',
       type: 'integer',
       required: true,
       primary: true,
-      autoInc: true
+      unsigned: true
     }]
   }
 }
 
-export default autoIncId
+export default intId

@@ -2,6 +2,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 import checkUnique from '../../../lib/check-unique.js'
 import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 import execValidation from '../../../lib/exec-validation.js'
+import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function update (name, id, input, options = {}) {
   const { runHook, importPkg, print } = this.bajo.helper
@@ -18,11 +19,7 @@ async function update (name, id, input, options = {}) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordUpdate`, id, body, options)
   }
-  for (const f in schema.feature) {
-    if (!schema.feature[f]) continue
-    const beforeUpdate = get(this.bajoDb, `feature.${f}.hook.beforeUpdate`)
-    if (beforeUpdate) await beforeUpdate.call(this, { schema, body })
-  }
+  await execFeatureHook.call(this, 'beforeUpdate', { schema, body })
   await checkUnique.call(this, { schema, body, id })
   let record
   try {
@@ -40,6 +37,7 @@ async function update (name, id, input, options = {}) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
   }
+  await execFeatureHook.call(this, 'afterUpdate', { schema, body, record })
   if (!skipHook) {
     await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, body, options, record)
     await runHook('bajoDb:onAfterRecordUpdate', name, id, body, options, record)
