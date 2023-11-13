@@ -3,7 +3,8 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 async function count (name, filter, options = {}) {
   const { runHook } = this.bajo.helper
   const { collExists } = this.bajoDb.helper
-  const { dataOnly = true, skipHook } = options
+  options.dataOnly = options.dataOnly ?? true
+  const { dataOnly, skipHook } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'count')
   if (!skipHook) {

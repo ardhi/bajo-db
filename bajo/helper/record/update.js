@@ -8,7 +8,8 @@ async function update (name, id, input, options = {}) {
   const { runHook, importPkg, print } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
   const { get, forOwn } = await importPkg('lodash-es')
-  const { fields, dataOnly = true, skipHook, skipValidation, ignoreHidden } = options
+  options.dataOnly = options.dataOnly ?? true
+  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   id = sanitizeId(id, schema)

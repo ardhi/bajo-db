@@ -57,7 +57,7 @@ async function prepPagination (filter = {}, schema) {
     }
   }
 
-  return { limit, page, skip, query, sort }
+  return { limit, page, skip, query, sort, noCount: filter.noCount }
 }
 
 export default prepPagination
