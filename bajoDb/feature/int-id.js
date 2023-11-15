@@ -4,7 +4,7 @@ async function intId (opts = {}) {
       name: 'id',
       type: 'integer',
       required: true,
-      primary: true,
+      index: 'primary',
       unsigned: true
     }]
   }

@@ -1,42 +1,40 @@
-async function prepPagination (filter = {}, schema) {
-  const { getConfig, importPkg, error } = this.bajo.helper
-  const lo = await importPkg('lodash-es')
-  const _filter = lo.filter
-  const { map, trim, isString, each, isPlainObject, isEmpty, keys } = lo
-  const opts = getConfig('bajoDb')
-  // query
-  const query = filter.query ?? {}
-  // limit
-  let limit = parseInt(filter.limit) || opts.defaults.filter.limit
-  if (limit > opts.defaults.filter.maxLimit) limit = opts.defaults.filter.maxLimit
+function buildPageSkipLimit (filter) {
+  const { getConfig } = this.bajo.helper
+  const cfg = getConfig('bajoDb')
+  let limit = parseInt(filter.limit) || cfg.defaults.filter.limit
+  if (limit > cfg.defaults.filter.maxLimit) limit = cfg.defaults.filter.maxLimit
   if (limit < 1) limit = 1
-  // page
   let page = parseInt(filter.page) || 1
   if (page < 1) page = 1
-  // skip/offset
   let skip = (page - 1) * limit
   if (filter.skip) {
     skip = parseInt(filter.skip) || skip
     page = undefined
   }
   if (skip < 0) skip = 0
-  // sort order
+  return { page, skip, limit }
+}
+
+async function buildSort (input, schema) {
+  const { importPkg, getConfig, error } = this.bajo.helper
+  const { isEmpty, map, each, isPlainObject, isString, trim, filter, keys } = await importPkg('lodash-es')
+  const cfg = getConfig('bajoDb')
   let sort
-  if (schema && isEmpty(filter.sort)) {
+  if (schema && isEmpty(input)) {
     const columns = map(schema.properties, 'name')
-    each(opts.defaults.filter.sort, s => {
+    each(cfg.defaults.filter.sort, s => {
       const [col] = s.split(':')
       if (columns.includes(col)) {
-        filter.sort = s
+        input = s
         return false
       }
     })
   }
-  if (!isEmpty(filter.sort)) {
-    if (isPlainObject(filter.sort)) sort = filter.sort
-    else if (isString(filter.sort)) {
+  if (!isEmpty(input)) {
+    if (isPlainObject(input)) sort = input
+    else if (isString(input)) {
       const item = {}
-      each(filter.sort.split('+'), text => {
+      each(input.split('+'), text => {
         let [col, dir] = map(trim(text).split(':'), i => trim(i))
         dir = parseInt(dir) || 1
         item[col] = dir / Math.abs(dir)
@@ -44,20 +42,27 @@ async function prepPagination (filter = {}, schema) {
       sort = item
     }
     if (schema) {
-      const indexes = map(_filter(schema.properties, p => {
-        return (!!p.index) || (!!p.primary)
-      }), 'name')
+      const indexes = map(filter(schema.properties, p => !!p.index), 'name')
       each(schema.indexes, item => {
         indexes.push(...item.fields)
       })
       const items = keys(sort)
       each(items, i => {
         if (!indexes.includes(i)) throw error('Sort on unindexed field: \'%s@%s\'', i, schema.name)
+        if (schema.fullText.fields.includes(i)) throw error('Can\'t sort on full-text index: \'%s@%s\'', i, schema.name)
       })
     }
   }
+  return sort
+}
 
-  return { limit, page, skip, query, sort, noCount: filter.noCount }
+async function prepPagination (filter = {}, schema, options = {}) {
+  const { buildQuery, buildMatch } = this.bajoDb.helper
+  const query = await buildQuery({ filter, schema, options }) ?? {}
+  const match = await buildMatch({ input: filter.match, schema, options }) ?? {}
+  const { page, skip, limit } = buildPageSkipLimit.call(this, filter)
+  const sort = await buildSort.call(this, filter.sort, schema)
+  return { limit, page, skip, query, sort, noCount: filter.noCount, match }
 }
 
 export default prepPagination
