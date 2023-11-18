@@ -9,13 +9,13 @@ async function update (name, id, input, options = {}) {
   const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
   const { get, forOwn } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
-  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden } = options
+  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, partial = true } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   id = sanitizeId(id, schema)
-  let body = await sanitizeBody({ body: input, schema, partial: true, strict: true })
+  let body = await sanitizeBody({ body: input, schema, partial, strict: true })
   delete body.id
-  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial: true })
+  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial })
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordUpdate`, id, body, options)

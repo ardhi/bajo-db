@@ -26,9 +26,9 @@ async function buildMatch ({ input = '', schema, options }) {
     const value = []
     if (typeof items[f] === 'string') items[f] = [items[f]]
     if (Object.prototype.hasOwnProperty.call(items, f)) value.push(...items[f])
-    if (Object.prototype.hasOwnProperty.call(items, '*')) value.push(...items['*'])
     matcher[f] = value
   }
+  if (Object.prototype.hasOwnProperty.call(items, '*')) matcher['*'] = items['*']
   return matcher
 }
 
