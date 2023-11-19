@@ -3,6 +3,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 async function get (name, id, options = {}) {
   const { runHook } = this.bajo.helper
   const { pickRecord, collExists, sanitizeId } = this.bajoDb.helper
+  const { get, set } = (this.bajoCache ?? {}).helper ?? {}
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly, skipHook, ignoreHidden } = options
   await collExists(name, true)
@@ -13,12 +14,20 @@ async function get (name, id, options = {}) {
     await runHook('bajoDb:onBeforeRecordGet', name, id, options)
     await runHook(`bajoDb.${name}:onBeforeRecordGet`, id, options)
   }
+  if (get) {
+    const cachedResult = await get({ coll: name, id, options })
+    if (cachedResult) {
+      cachedResult.cached = true
+      return dataOnly ? cachedResult.data : cachedResult
+    }
+  }
   const record = await handler.call(this, { schema, id, options })
   if (!skipHook) {
     await runHook(`bajoDb.${name}:onAfterRecordGet`, id, options, record)
     await runHook('bajoDb:onAfterRecordGet', name, id, options, record)
   }
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
+  if (set) await set({ coll: name, id, options, record })
   return dataOnly ? record.data : record
 }
 
