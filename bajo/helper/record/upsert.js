@@ -10,7 +10,7 @@ async function upsert (name, input, options = {}) {
   if (idField.type === 'string') id = input.id ?? generateId()
   else if (idField.type === 'integer') id = input.id ?? generateId('int')
   id = sanitizeId(id, schema)
-  const old = await recordGet(name, id, { thrownNotFound: false, dataOnly: true, skipHook: true })
+  const old = await recordGet(name, id, { thrownNotFound: false, dataOnly: true, skipHook: true, skipCache: true })
   if (old) return await recordUpdate(name, id, input, options)
   return await recordCreate(name, input, options)
 }

@@ -20,6 +20,7 @@ async function buildModel (path, args) {
   const isMatch = outmatch(map(names.split(' '), m => trim(m)))
   names = schemas.filter(isMatch)
   if (names.length === 0) print.fatal('No schema matched', true)
+  names = names.sort()
   console.log(boxen(names.join(' '), { title: print.__('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
   const answer = await confirm({
     message: print.__('The above mentioned schema(s) will be rebuilt as collection. Continue?'),

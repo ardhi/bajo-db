@@ -22,13 +22,13 @@ async function handleBbox ({ bbox, query, schema, options = {} } = {}) {
 async function buildQuery ({ filter, schema, options = {} } = {}) {
   const { importPkg } = this.bajo.helper
   const { parseBbox } = this.bajoDb.helper
-  const { trim, isString } = await importPkg('lodash-es')
+  const { trim, isString, isPlainObject } = await importPkg('lodash-es')
   let query = {}
   if (isString(filter.query)) {
     if (trim(filter.query).startsWith('{')) query = JSON.parse(filter.query)
     else query = nql(filter.query).parse()
-  }
-  const bbox = parseBbox(filter.bbox)
+  } else if (isPlainObject(filter.query)) query = filter.query
+  const bbox = await parseBbox(filter.bbox)
   if (!bbox) return query
   await handleBbox.call(this, { bbox, query, schema, options })
   return query
