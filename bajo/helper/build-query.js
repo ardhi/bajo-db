@@ -17,6 +17,7 @@ async function handleBbox ({ bbox, query, schema, options = {} } = {}) {
       else merge(query, q)
     }
   }
+  return query
 }
 
 async function buildQuery ({ filter, schema, options = {} } = {}) {
@@ -30,8 +31,7 @@ async function buildQuery ({ filter, schema, options = {} } = {}) {
   } else if (isPlainObject(filter.query)) query = filter.query
   const bbox = await parseBbox(filter.bbox)
   if (!bbox) return query
-  await handleBbox.call(this, { bbox, query, schema, options })
-  return query
+  return await handleBbox.call(this, { bbox, query, schema, options })
 }
 
 export default buildQuery
