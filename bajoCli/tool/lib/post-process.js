@@ -1,7 +1,7 @@
 import start from '../../../bajo/start.js'
 const conns = []
 
-async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
+async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {}, returnEarly } = {}) {
   const { print, getConfig, saveAsDownload, importPkg } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
@@ -12,7 +12,10 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   params.push({ fields: config.fields, dataOnly: !config.full })
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
-  if (!schema) print.fatal('No schema found!', params[0])
+  if (!schema) {
+    print.fail('No schema found!', { exit: !returnEarly })
+    if (returnEarly) return
+  }
   let cont = true
   if (!noConfirmation) {
     const answer = await confirm({ message: print.__('Are you sure to continue?'), default: false })

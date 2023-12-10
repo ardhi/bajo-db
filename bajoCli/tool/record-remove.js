@@ -1,11 +1,14 @@
 import postProcess from './lib/post-process.js'
 
-async function removeRecord (path, args, options) {
+async function removeRecord ({ path, args, options, returnEarly }) {
   const { importPkg, print } = this.bajo.helper
   const { isEmpty, map, get } = await importPkg('lodash-es')
   const [input, select] = await importPkg('bajo-cli:@inquirer/input', 'bajo-cli:@inquirer/select')
   const schemas = get(this, 'bajoDb.schemas', [])
-  if (isEmpty(schemas)) print.fatal('No schema found!')
+  if (isEmpty(schemas)) {
+    print.fail('No schema found!', { exit: !returnEarly })
+    if (returnEarly) return
+  }
   let [schema, id] = args
   if (isEmpty(schema)) {
     schema = await select({
@@ -19,7 +22,7 @@ async function removeRecord (path, args, options) {
       validate: text => isEmpty(text) ? print.__('ID is required') : true
     })
   }
-  await postProcess.call(this, { handler: 'recordRemove', params: [schema, id], path, processMsg: 'Removing record', options })
+  await postProcess.call(this, { handler: 'recordRemove', params: [schema, id], path, processMsg: 'Removing record', options, returnEarly })
 }
 
 export default removeRecord

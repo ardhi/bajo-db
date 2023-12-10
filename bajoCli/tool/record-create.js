@@ -1,12 +1,15 @@
 import postProcess from './lib/post-process.js'
 
-async function createRecord (path, args, options) {
+async function createRecord ({ path, args, options, returnEarly }) {
   const { importPkg, print } = this.bajo.helper
   const { isEmpty, map, isPlainObject, get } = await importPkg('lodash-es')
   const [input, select, boxen] = await importPkg('bajo-cli:@inquirer/input',
     'bajo-cli:@inquirer/select', 'bajo-cli:boxen')
   const schemas = get(this, 'bajoDb.schemas', [])
-  if (isEmpty(schemas)) print.fatal('No schema found!')
+  if (isEmpty(schemas)) {
+    print.fail('No schema found!', { exit: !returnEarly })
+    if (returnEarly) return
+  }
   let [schema, body] = args
   if (isEmpty(schema)) {
     schema = await select({
@@ -33,10 +36,11 @@ async function createRecord (path, args, options) {
   try {
     payload = JSON.parse(body)
   } catch (err) {
-    print.fatal('Invalid payload syntax')
+    print.fail('Invalid payload syntax', { exit: !returnEarly })
+    if (returnEarly) return
   }
   console.log(boxen(JSON.stringify(payload, null, 2), { title: schema, padding: 0.5, borderStyle: 'round' }))
-  await postProcess.call(this, { handler: 'recordCreate', params: [schema, payload], path, processMsg: 'Creating record', options })
+  await postProcess.call(this, { handler: 'recordCreate', params: [schema, payload], path, processMsg: 'Creating record', options, returnEarly })
 }
 
 export default createRecord

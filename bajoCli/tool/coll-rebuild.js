@@ -1,7 +1,7 @@
 import start from '../../bajo/start.js'
 import addFixtures from '../../lib/add-fixtures.js'
 
-async function buildModel (path, args) {
+async function buildModel ({ path, args, returnEarly }) {
   const { importPkg, print, getConfig } = this.bajo.helper
   const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
   const { isEmpty, map, trim } = await importPkg('lodash-es')
@@ -10,7 +10,10 @@ async function buildModel (path, args) {
   const config = getConfig()
   const schemas = map(this.bajoDb.schemas, 'name')
   let names = args.join(' ')
-  if (isEmpty(schemas)) print.fatal('No schema found!')
+  if (isEmpty(schemas)) {
+    print.fail('No schema found!', { exit: !returnEarly })
+    if (returnEarly) return
+  }
   if (isEmpty(names)) {
     names = await input({
       message: print.__('Enter schema name(s), separated by space:'),
@@ -19,14 +22,20 @@ async function buildModel (path, args) {
   }
   const isMatch = outmatch(map(names.split(' '), m => trim(m)))
   names = schemas.filter(isMatch)
-  if (names.length === 0) print.fatal('No schema matched', true)
+  if (names.length === 0) {
+    print.fail('No schema matched', true, { exit: !returnEarly })
+    if (returnEarly) return
+  }
   names = names.sort()
   console.log(boxen(names.join(' '), { title: print.__('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
   const answer = await confirm({
     message: print.__('The above mentioned schema(s) will be rebuilt as collection. Continue?'),
     default: false
   })
-  if (!answer) print.fatal('Aborted!')
+  if (!answer) {
+    print.fail('Aborted!', { exit: !returnEarly })
+    if (returnEarly) return
+  }
   const conns = []
   for (const s of names) {
     const { connection } = await getInfo(s)
