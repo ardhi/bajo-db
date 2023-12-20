@@ -3,7 +3,7 @@ import buildRecordAction from '../../../lib/build-record-action.js'
 async function get (name, id, options = {}) {
   const { runHook } = this.bajo.helper
   const { pickRecord, collExists, sanitizeId } = this.bajoDb.helper
-  const { get, set } = (this.bajoCache ?? {}).helper ?? {}
+  const { get, set } = this.bajoDb.cache ?? {}
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly, skipHook, skipCache, ignoreHidden } = options
   await collExists(name, true)

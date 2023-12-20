@@ -7,6 +7,7 @@ import execFeatureHook from '../../../lib/exec-feature-hook.js'
 async function update (name, id, input, options = {}) {
   const { runHook, importPkg, print } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
+  const { clearColl } = this.bajoDb.cache ?? {}
   const { get, forOwn } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, partial = true } = options
@@ -43,6 +44,7 @@ async function update (name, id, input, options = {}) {
     await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, body, options, record)
     await runHook('bajoDb:onAfterRecordUpdate', name, id, body, options, record)
   }
+  if (clearColl) await clearColl(name)
   record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record

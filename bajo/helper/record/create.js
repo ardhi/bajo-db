@@ -7,6 +7,7 @@ import execFeatureHook from '../../../lib/exec-feature-hook.js'
 async function create (name, input, options = {}) {
   const { generateId, runHook, importPkg, print } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
+  const { clearColl } = this.bajoDb.cache ?? {}
   const { get, find, forOwn } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly, skipHook, skipValidation, ignoreHidden } = options
@@ -43,6 +44,7 @@ async function create (name, input, options = {}) {
     await runHook(`bajoDb.${name}:onAfterRecordCreate`, body, options, record)
     await runHook('bajoDb:onAfterRecordCreate', name, body, options, record)
   }
+  if (clearColl) await clearColl(name)
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record
 }

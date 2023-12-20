@@ -4,6 +4,7 @@ import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 async function remove (name, id, options = {}) {
   const { runHook, print } = this.bajo.helper
   const { pickRecord, collExists, sanitizeId } = this.bajoDb.helper
+  const { clearColl } = this.bajoDb.cache ?? {}
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly, skipHook, ignoreHidden } = options
   await collExists(name, true)
@@ -22,6 +23,7 @@ async function remove (name, id, options = {}) {
     await runHook(`bajoDb.${name}:onAfterRecordRemove`, id, options, record)
     await runHook('bajoDb:onAfterRecordRemove', name, id, options, record)
   }
+  if (clearColl) await clearColl(name)
   record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
   return dataOnly ? record.oldData : record
 }
