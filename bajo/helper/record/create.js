@@ -44,7 +44,7 @@ async function create (name, input, options = {}) {
     await runHook(`bajoDb.${name}:onAfterRecordCreate`, body, options, record)
     await runHook('bajoDb:onAfterRecordCreate', name, body, options, record)
   }
-  if (clearColl) await clearColl(name)
+  if (clearColl) await clearColl({ coll: name, body, options, record })
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record
 }

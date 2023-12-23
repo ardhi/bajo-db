@@ -1,8 +1,8 @@
 import start from '../../../bajo/start.js'
 const conns = []
 
-async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {}, returnEarly } = {}) {
-  const { print, getConfig, saveAsDownload, importPkg } = this.bajo.helper
+async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
+  const { print, getConfig, saveAsDownload, importPkg, spinner } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
   const { find, get } = await importPkg('lodash-es')
@@ -12,10 +12,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   params.push({ fields: config.fields, dataOnly: !config.full })
 
   const schema = find(this.bajoDb.schemas, { name: params[0] })
-  if (!schema) {
-    print.fail('No schema found!', { exit: !returnEarly })
-    if (returnEarly) return
-  }
+  if (!schema) return print.fail('No schema found!', { exit: config.tool })
   let cont = true
   if (!noConfirmation) {
     const answer = await confirm({ message: print.__('Are you sure to continue?'), default: false })
@@ -25,7 +22,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
     }
   }
   if (!cont) return
-  const spinner = print.bora(`${processMsg}...`).start()
+  const spin = spinner().start(`${processMsg}...`)
   const { connection } = await getInfo(schema)
   if (!conns.includes(connection.name)) {
     await start.call(this, connection.name)
@@ -33,7 +30,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   }
   try {
     const resp = await this.bajoDb.helper[handler](...params)
-    spinner.succeed('Done!')
+    spin.succeed('Done!')
     const result = config.pretty ? (await prettyPrint(resp)) : JSON.stringify(resp, null, 2)
     if (config.save) {
       const id = resp.id ?? get(resp, 'data.id') ?? get(resp, 'oldData.id')
@@ -42,7 +39,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
       await saveAsDownload(file, stripAnsi(result))
     } else console.log(result)
   } catch (err) {
-    spinner.fail('Error: %s', err.message)
+    spin.fail('Error: %s', err.message)
   }
 }
 

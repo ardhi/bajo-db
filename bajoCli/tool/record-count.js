@@ -1,14 +1,12 @@
 import postProcess from './lib/post-process.js'
 
-async function findRecord ({ path, args, options, returnEarly }) {
-  const { importPkg, print } = this.bajo.helper
+async function findRecord ({ path, args, options }) {
+  const { importPkg, print, getConfig } = this.bajo.helper
   const { isEmpty, map, get } = await importPkg('lodash-es')
   const [select, input] = await importPkg('bajo-cli:@inquirer/select', 'bajo-cli:@inquirer/input')
   const schemas = get(this, 'bajoDb.schemas', [])
-  if (isEmpty(schemas)) {
-    print.fail('No schema found!', { exit: !returnEarly })
-    if (returnEarly) return
-  }
+  const config = getConfig()
+  if (isEmpty(schemas)) return print.fail('No schema found!', { exit: config.tool })
   let [schema, query] = args
   if (isEmpty(schema)) {
     schema = await select({
@@ -22,7 +20,7 @@ async function findRecord ({ path, args, options, returnEarly }) {
     })
   }
   const filter = { query }
-  await postProcess.call(this, { noConfirmation: true, handler: 'recordCount', params: [schema, filter], path, processMsg: 'Counting record(s)', options, returnEarly })
+  await postProcess.call(this, { noConfirmation: true, handler: 'recordCount', params: [schema, filter], path, processMsg: 'Counting record(s)', options })
 }
 
 export default findRecord

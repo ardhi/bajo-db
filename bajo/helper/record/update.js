@@ -24,12 +24,12 @@ async function update (name, id, input, options = {}) {
   await execFeatureHook.call(this, 'beforeUpdate', { schema, body })
   await checkUnique.call(this, { schema, body, id })
   let record
+  const nbody = {}
+  forOwn(body, (v, k) => {
+    if (v !== undefined) nbody[k] = v
+  })
+  delete nbody.id
   try {
-    const nbody = {}
-    forOwn(body, (v, k) => {
-      if (v !== undefined) nbody[k] = v
-    })
-    delete nbody.id
     record = await handler.call(this, { schema, id, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, body, options, action: 'update' })
@@ -39,12 +39,12 @@ async function update (name, id, input, options = {}) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
   }
-  await execFeatureHook.call(this, 'afterUpdate', { schema, body, record })
+  await execFeatureHook.call(this, 'afterUpdate', { schema, body: nbody, record })
   if (!skipHook) {
-    await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, body, options, record)
-    await runHook('bajoDb:onAfterRecordUpdate', name, id, body, options, record)
+    await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, nbody, options, record)
+    await runHook('bajoDb:onAfterRecordUpdate', name, id, nbody, options, record)
   }
-  if (clearColl) await clearColl(name)
+  if (clearColl) await clearColl({ coll: name, id, body: nbody, options, record })
   record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record

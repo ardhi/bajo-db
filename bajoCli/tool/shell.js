@@ -14,7 +14,7 @@ const mods = [
   '-'
 ]
 
-async function shell ({ path, args, options, returnEarly }) {
+async function shell ({ path, args, options }) {
   const { importPkg, print, importModule, resolvePath, currentLoc } = this.bajo.helper
   const prompts = await importPkg('bajo-cli:@inquirer/prompts')
   const { map, find, repeat, kebabCase } = await importPkg('lodash-es')

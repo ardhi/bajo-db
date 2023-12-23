@@ -1,15 +1,13 @@
 import postProcess from './lib/post-process.js'
 
-async function updateRecord ({ path, args, options, returnEarly }) {
-  const { importPkg, print } = this.bajo.helper
+async function updateRecord ({ path, args, options }) {
+  const { importPkg, print, getConfig } = this.bajo.helper
   const { isEmpty, map, isPlainObject, get } = await importPkg('lodash-es')
   const [input, select, boxen] = await importPkg('bajo-cli:@inquirer/input',
     'bajo-cli:@inquirer/select', 'bajo-cli:boxen')
+  const config = getConfig()
   const schemas = get(this, 'bajoDb.schemas', [])
-  if (isEmpty(schemas)) {
-    print.fail('No schema found!', { exit: !returnEarly })
-    if (returnEarly) return
-  }
+  if (isEmpty(schemas)) return print.fail('No schema found!', { exit: config.tool })
   let [schema, id, body] = args
   if (isEmpty(schema)) {
     schema = await select({
@@ -42,11 +40,10 @@ async function updateRecord ({ path, args, options, returnEarly }) {
   try {
     payload = JSON.parse(body)
   } catch (err) {
-    print.fail('Invalid payload syntax', { exit: !returnEarly })
-    if (returnEarly) return
+    return print.fail('Invalid payload syntax', { exit: config.tool })
   }
   console.log(boxen(JSON.stringify(payload, null, 2), { title: schema, padding: 0.5, borderStyle: 'round' }))
-  await postProcess.call(this, { handler: 'recordUpdate', params: [schema, id, payload], path, processMsg: 'Updating record', options, returnEarly })
+  await postProcess.call(this, { handler: 'recordUpdate', params: [schema, id, payload], path, processMsg: 'Updating record', options })
 }
 
 export default updateRecord

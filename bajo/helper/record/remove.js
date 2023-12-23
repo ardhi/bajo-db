@@ -23,7 +23,7 @@ async function remove (name, id, options = {}) {
     await runHook(`bajoDb.${name}:onAfterRecordRemove`, id, options, record)
     await runHook('bajoDb:onAfterRecordRemove', name, id, options, record)
   }
-  if (clearColl) await clearColl(name)
+  if (clearColl) await clearColl({ coll: name, id, options, record })
   record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
   return dataOnly ? record.oldData : record
 }
