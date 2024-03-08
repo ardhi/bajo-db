@@ -1,5 +1,6 @@
 async function updatedAt (opts = {}) {
   opts.fieldName = opts.fieldName ?? 'updatedAt'
+  opts.overwrite = opts.overwrite ?? true
   return {
     properties: {
       name: opts.fieldName,

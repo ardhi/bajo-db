@@ -36,7 +36,8 @@ const propType = {
   timestamp: {
     validator: 'timestamp'
   },
-  object: {}
+  object: {},
+  array: {}
 }
 
 export default propType

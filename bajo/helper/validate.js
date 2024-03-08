@@ -1,6 +1,6 @@
 import joi from 'joi'
 
-const excludedTypes = ['object']
+const excludedTypes = ['object', 'array']
 const excludedNames = []
 
 const validator = {

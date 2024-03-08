@@ -5,7 +5,7 @@ async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
   const result = {}
   for (const p of schema.properties) {
     if (partial && !has(body, p.name)) continue
-    if (p.type === 'object') {
+    if (['object', 'array'].includes(p.type)) {
       if (isString(body[p.name])) {
         try {
           result[p.name] = JSON.parse(body[p.name])

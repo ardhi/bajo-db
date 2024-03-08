@@ -62,7 +62,7 @@ async function prepPagination (filter = {}, schema, options = {}) {
   const match = await buildMatch({ input: filter.match, schema, options }) ?? {}
   const { page, skip, limit } = buildPageSkipLimit.call(this, filter)
   const sort = await buildSort.call(this, filter.sort, schema)
-  return { limit, page, skip, query, sort, noCount: filter.noCount, match }
+  return { limit, page, skip, query, sort, match }
 }
 
 export default prepPagination

@@ -39,7 +39,10 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
       await saveAsDownload(file, stripAnsi(result))
     } else console.log(result)
   } catch (err) {
-    spin.fail('Error: %s', err.message)
+    if (config.log.tool) {
+      spin.stop()
+      console.error(err)
+    } else spin.fail('Error: %s', err.message)
   }
 }
 

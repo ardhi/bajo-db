@@ -5,11 +5,12 @@ import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function create (name, input, options = {}) {
-  const { generateId, runHook, importPkg, print } = this.bajo.helper
+  const { generateId, runHook, importPkg, print, isSet } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
   const { get, find, forOwn } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
+  options.truncateString = options.truncateString ?? true
   const { fields, dataOnly, skipHook, skipValidation, ignoreHidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
@@ -28,7 +29,10 @@ async function create (name, input, options = {}) {
   try {
     const nbody = {}
     forOwn(body, (v, k) => {
-      if (v !== undefined) nbody[k] = v
+      if (v === undefined) return undefined
+      const prop = find(schema.properties, { name: k })
+      if (options.truncateString && isSet(v) && prop && ['string', 'text'].includes(prop.type)) v = v.slice(0, prop.maxLength)
+      nbody[k] = v
     })
     record = await handler.call(this, { schema, body: nbody, options })
     if (options.req) {

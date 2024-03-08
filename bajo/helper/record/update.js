@@ -5,11 +5,12 @@ import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function update (name, id, input, options = {}) {
-  const { runHook, importPkg, print } = this.bajo.helper
+  const { runHook, importPkg, print, isSet } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
-  const { get, forOwn } = await importPkg('lodash-es')
+  const { get, forOwn, find } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
+  options.truncateString = options.truncateString ?? true
   const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, partial = true } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
@@ -26,7 +27,10 @@ async function update (name, id, input, options = {}) {
   let record
   const nbody = {}
   forOwn(body, (v, k) => {
-    if (v !== undefined) nbody[k] = v
+    if (v === undefined) return undefined
+    const prop = find(schema.properties, { name: k })
+    if (options.truncateString && isSet(v) && prop && ['string', 'text'].includes(prop.type)) v = v.slice(0, prop.maxLength)
+    nbody[k] = v
   })
   delete nbody.id
   try {
