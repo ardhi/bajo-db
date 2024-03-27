@@ -63,7 +63,7 @@ async function buildModel ({ path, args }) {
       await collCreate(schema, spinner)
       if (connection.memory) spin.succeed('Model \'%s\' successfully created', schema.name)
       else {
-        const fixture = await addFixtures.call(this, schema, spinner)
+        const fixture = await addFixtures.call(this, schema, spin)
         spin.succeed('Model \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
       }
       result.succed++

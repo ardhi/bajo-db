@@ -11,7 +11,7 @@ async function create (name, input, options = {}) {
   const { get, find, forOwn } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
-  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden } = options
+  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, skipCheckUnique } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   const idField = find(schema.properties, { name: 'id' })
@@ -24,7 +24,7 @@ async function create (name, input, options = {}) {
     await runHook(`bajoDb.${name}:onBeforeRecordCreate`, body, options)
   }
   await execFeatureHook.call(this, 'beforeCreate', { schema, body })
-  await checkUnique.call(this, { schema, body })
+  if (!skipCheckUnique) await checkUnique.call(this, { schema, body })
   let record
   try {
     const nbody = {}
