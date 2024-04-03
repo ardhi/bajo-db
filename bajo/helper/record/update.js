@@ -8,7 +8,8 @@ async function update (name, id, input, options = {}) {
   const { runHook, importPkg, print, isSet } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
-  const { get, forOwn, find } = await importPkg('lodash-es')
+  const { get, forOwn, find, cloneDeep } = await importPkg('lodash-es')
+  input = cloneDeep(input)
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
   const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, skipCheckUnique, partial = true } = options

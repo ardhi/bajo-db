@@ -1,4 +1,4 @@
-async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
+async function sanitizeBody ({ body = {}, schema = {}, partial, strict, ignoreFields = [] }) {
   const { importPkg, isSet, dayjs } = this.bajo.helper
   const { sanitizeDate } = this.bajoDb.helper
   const { has, get, isString, isNumber } = await importPkg('lodash-es')
@@ -61,6 +61,9 @@ async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
         }
       }
     }
+  }
+  for (const f of ignoreFields) {
+    if (has(body, f)) result[f] = body[f]
   }
   return result
 }

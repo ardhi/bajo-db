@@ -1,7 +1,7 @@
-async function getSchema (name) {
+async function getSchema (input) {
   const { importPkg, error, pascalCase } = this.bajo.helper
   const { find, isPlainObject, cloneDeep } = await importPkg('lodash-es')
-  if (isPlainObject(name)) name = name.name
+  let name = isPlainObject(input) ? input.name : input
   name = pascalCase(name)
   const schema = find(this.bajoDb.schemas, { name })
   if (!schema) throw error('Unknown coll/schema \'%s\'', name)
