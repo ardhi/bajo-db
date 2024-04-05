@@ -32,7 +32,8 @@ async function shell ({ path, args, options }) {
       })
       if (!answer) continue
       print.info('Quitting now, have a nice day!')
-      process.exit(0)
+      process.kill(process.pid, 'SIGINT')
+      return
     }
     console.log(repeat('-', 80))
     print.info('Running: %s', method)
