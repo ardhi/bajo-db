@@ -18,12 +18,12 @@ async function update (name, id, input, options = {}) {
   id = sanitizeId(id, schema)
   let body = await sanitizeBody({ body: input, schema, partial, strict: true })
   delete body.id
-  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial })
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordUpdate`, id, body, options)
   }
   await execFeatureHook.call(this, 'beforeUpdate', { schema, body })
+  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial })
   if (!skipCheckUnique) await checkUnique.call(this, { schema, body, id })
   let record
   const nbody = {}

@@ -147,7 +147,7 @@ async function validate (value, joiSchema, { ns = ['bajoDb'], fields, extPropert
   try {
     return await joiSchema.validateAsync(value, params)
   } catch (err) {
-    throw error('Validation Error', { details: err.details, ns, statusCode: 422, code: 'DB_VALIDATION' })
+    throw error('Validation Error', { details: err.details, values: err.values, ns, statusCode: 422, code: 'DB_VALIDATION' })
   }
 }
 

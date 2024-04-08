@@ -19,12 +19,12 @@ async function create (name, input, options = {}) {
   if (idField.type === 'string') input.id = input.id ?? generateId()
   else if (idField.type === 'integer') input.id = input.id ?? generateId('int')
   let body = await sanitizeBody({ body: input, schema, strict: true })
-  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options })
   if (!skipHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordCreate`, body, options)
   }
   await execFeatureHook.call(this, 'beforeCreate', { schema, body })
+  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options })
   if (!skipCheckUnique) await checkUnique.call(this, { schema, body })
   let record
   try {
