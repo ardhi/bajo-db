@@ -9,7 +9,7 @@ async function create (name, inputs, options) {
   const { find } = await importPkg('lodash-es')
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
-  const { skipHook, skipValidation } = options
+  const { noHook, noValidation } = options
   await collExists(name, true)
   const { handler, schema } = await buildBulkAction.call(this, name, 'create', options)
   const idField = find(schema.properties, { name: 'id' })
@@ -17,9 +17,9 @@ async function create (name, inputs, options) {
   for (let b of bodies) {
     b.id = b.id ?? generateId(idField.type === 'integer' ? 'int' : undefined)
     b = await sanitizeBody({ body: b, schema, strict: true })
-    if (!skipValidation) b = await execValidation.call(this, { skipHook, name, b, options })
+    if (!noValidation) b = await execValidation.call(this, { noHook, name, b, options })
   }
-  if (!skipHook) {
+  if (!noHook) {
     await runHook('bajoDb:onBeforeBulkCreate', name, bodies, options)
     await runHook(`bajoDb.${name}:onBeforeBulkCreate`, bodies, options)
   }
@@ -36,7 +36,7 @@ async function create (name, inputs, options) {
   for (const idx in bodies) {
     await execFeatureHook.call(this, 'afterCreate', { schema, body: bodies[idx] })
   }
-  if (!skipHook) {
+  if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterBulkCreate`, bodies, options)
     await runHook('bajoDb:onAfterBulkCreate', name, bodies, options)
   }

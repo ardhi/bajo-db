@@ -1,4 +1,7 @@
+const cache = {}
+
 async function exists (name, thrown, spinner) {
+  if (cache[name]) return cache[name]
   const { error, runHook } = this.bajo.helper
   const { getInfo } = this.bajoDb.helper
   const { getConfig, importModule } = this.bajo.helper
@@ -9,6 +12,7 @@ async function exists (name, thrown, spinner) {
   const exist = await mod.call(this, schema)
   await runHook('bajoDb:afterCollExists' + name, schema, exist)
   if (!exist && thrown) throw error('Collection doesn\'t exist yet. Please do collection rebuild first')
+  cache[name] = exist
   return exist
 }
 

@@ -12,19 +12,19 @@ async function update (name, id, input, options = {}) {
   input = cloneDeep(input)
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
-  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, skipCheckUnique, partial = true } = options
+  const { fields, dataOnly, noHook, noValidation, ignoreHidden, noCheckUnique, noFeatureHook, noResult, noSanitize, partial = true } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   id = sanitizeId(id, schema)
-  let body = await sanitizeBody({ body: input, schema, partial, strict: true })
+  let body = noSanitize ? input : await sanitizeBody({ body: input, schema, partial, strict: true })
   delete body.id
-  if (!skipHook) {
+  if (!noHook) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordUpdate`, id, body, options)
   }
-  await execFeatureHook.call(this, 'beforeUpdate', { schema, body })
-  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options, partial })
-  if (!skipCheckUnique) await checkUnique.call(this, { schema, body, id })
+  if (!noFeatureHook) await execFeatureHook.call(this, 'beforeUpdate', { schema, body })
+  if (!noValidation) body = await execValidation.call(this, { noHook, name, body, options, partial })
+  if (!noCheckUnique) await checkUnique.call(this, { schema, body, id })
   let record
   const nbody = {}
   forOwn(body, (v, k) => {
@@ -44,12 +44,13 @@ async function update (name, id, input, options = {}) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
   }
-  await execFeatureHook.call(this, 'afterUpdate', { schema, body: nbody, record })
-  if (!skipHook) {
+  if (!noFeatureHook) await execFeatureHook.call(this, 'afterUpdate', { schema, body: nbody, record })
+  if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordUpdate`, id, nbody, options, record)
     await runHook('bajoDb:onAfterRecordUpdate', name, id, nbody, options, record)
   }
   if (clearColl) await clearColl({ coll: name, id, body: nbody, options, record })
+  if (noResult) return
   record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record

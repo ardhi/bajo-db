@@ -12,21 +12,21 @@ async function create (name, input, options = {}) {
   input = cloneDeep(input)
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
-  const { fields, dataOnly, skipHook, skipValidation, ignoreHidden, skipCheckUnique } = options
+  const { fields, dataOnly, noHook, noValidation, ignoreHidden, noCheckUnique, noFeatureHook, noResult, noSanitize } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   const idField = find(schema.properties, { name: 'id' })
   if (idField.type === 'string') input.id = input.id ?? generateId()
   else if (idField.type === 'integer') input.id = input.id ?? generateId('int')
-  let body = await sanitizeBody({ body: input, schema, strict: true })
-  if (!skipHook) {
+  let body = noSanitize ? input : await sanitizeBody({ body: input, schema, strict: true })
+  if (!noHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordCreate`, body, options)
   }
-  await execFeatureHook.call(this, 'beforeCreate', { schema, body })
-  if (!skipValidation) body = await execValidation.call(this, { skipHook, name, body, options })
-  if (!skipCheckUnique) await checkUnique.call(this, { schema, body })
-  let record
+  if (!noFeatureHook) await execFeatureHook.call(this, 'beforeCreate', { schema, body })
+  if (!noValidation) body = await execValidation.call(this, { noHook, name, body, options })
+  if (!noCheckUnique) await checkUnique.call(this, { schema, body })
+  let record = {}
   try {
     const nbody = {}
     forOwn(body, (v, k) => {
@@ -44,12 +44,13 @@ async function create (name, input, options = {}) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
     throw err
   }
-  await execFeatureHook.call(this, 'afterCreate', { schema, body, record })
-  if (!skipHook) {
+  if (!noFeatureHook) await execFeatureHook.call(this, 'afterCreate', { schema, body, record })
+  if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordCreate`, body, options, record)
     await runHook('bajoDb:onAfterRecordCreate', name, body, options, record)
   }
   if (clearColl) await clearColl({ coll: name, body, options, record })
+  if (noResult) return
   record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
   return dataOnly ? record.data : record
 }

@@ -4,15 +4,15 @@ async function count (name, filter, options = {}) {
   const { runHook } = this.bajo.helper
   const { collExists } = this.bajoDb.helper
   options.dataOnly = options.dataOnly ?? true
-  const { dataOnly, skipHook } = options
+  const { dataOnly, noHook } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'count')
-  if (!skipHook) {
+  if (!noHook) {
     await runHook('bajoDb:onBeforeRecordCount', name, filter, options)
     await runHook(`bajoDb.${name}:onBeforeRecordCount`, filter, options)
   }
   const rec = await handler.call(this, { schema, filter, options })
-  if (!skipHook) {
+  if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordCount`, filter, options, rec)
     await runHook('bajoDb:onAfterRecordCount', name, filter, options, rec)
   }
