@@ -1,6 +1,6 @@
 {
   "name": "bajo-db",
-  "version": "0.2.25",
+  "version": "0.2.27",
   "description": "Database for Bajo Framework",
   "main": "index.js",
   "scripts": {
