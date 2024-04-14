@@ -12,7 +12,7 @@ async function create (name, input, options = {}) {
   input = cloneDeep(input)
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
-  const { fields, dataOnly, noHook, noValidation, ignoreHidden, noCheckUnique, noFeatureHook, noResult, noSanitize } = options
+  const { fields, dataOnly, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, hidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   const idField = find(schema.properties, { name: 'id' })
@@ -51,7 +51,7 @@ async function create (name, input, options = {}) {
   }
   if (clearColl) await clearColl({ coll: name, body, options, record })
   if (noResult) return
-  record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
+  record.data = await pickRecord({ record: record.data, fields, schema, hidden })
   return dataOnly ? record.data : record
 }
 

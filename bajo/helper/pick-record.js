@@ -1,4 +1,4 @@
-async function transform ({ record, schema, ignoreHidden, ignoreFields = [] } = {}) {
+async function transform ({ record, schema } = {}) {
   const { dayjs } = this.bajo.helper
   const { sanitizeBody } = this.bajoDb.helper
   if (record._id) {
@@ -7,7 +7,6 @@ async function transform ({ record, schema, ignoreHidden, ignoreFields = [] } = 
   }
   const result = {}
   for (const p of schema.properties) {
-    if (p.hidden && !ignoreHidden) continue
     result[p.name] = record[p.name] ?? null
     if (record[p.name] === null) continue
     switch (p.type) {
@@ -15,27 +14,18 @@ async function transform ({ record, schema, ignoreHidden, ignoreFields = [] } = 
       case 'date': result[p.name] = dayjs(record[p.name]).format('YYYY-MM-DD'); break
     }
   }
-  for (const f of ignoreFields) {
-    if (Object.prototype.hasOwnProperty.call(record, f)) result[f] = record[f]
-  }
-  return await sanitizeBody({ body: result, schema, partial: true, ignoreNull: true, ignoreFields })
+  return await sanitizeBody({ body: result, schema, partial: true, ignoreNull: true })
 }
 
-async function pickRecord ({ record, fields, schema = {}, ignoreHidden, ignoreFields } = {}) {
+async function pickRecord ({ record, fields, schema = {}, hidden = [] } = {}) {
   const { importPkg } = this.bajo.helper
-  const { isArray, pick, clone, isEmpty } = await importPkg('lodash-es')
+  const { isArray, pick, clone, isEmpty, omit } = await importPkg('lodash-es')
   if (isEmpty(record)) return record
-  /*
-  if (!ignoreHidden) {
-    const hidden = map(filter(schema.properties, { hidden: true }), 'name')
-    record = omit(record, hidden)
-  }
-  */
-  if (!isArray(fields)) return await transform.call(this, { record, schema, ignoreHidden, ignoreFields })
+  if (hidden.length > 0) record = omit(record, hidden)
+  if (!isArray(fields)) return await transform.call(this, { record, schema })
   const fl = clone(fields)
   if (!fl.includes('id')) fl.unshift('id')
-  if (isArray(ignoreFields) && ignoreFields.length > 0) fl.push(...ignoreFields)
-  return pick(await transform.call(this, { record, schema, ignoreHidden, ignoreFields }), fl)
+  return pick(await transform.call(this, { record, schema }), fl)
 }
 
 export default pickRecord

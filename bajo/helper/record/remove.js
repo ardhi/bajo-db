@@ -6,7 +6,7 @@ async function remove (name, id, options = {}) {
   const { pickRecord, collExists, sanitizeId } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
   options.dataOnly = options.dataOnly ?? true
-  const { fields, dataOnly, noHook, ignoreHidden, noResult } = options
+  const { fields, dataOnly, noHook, noResult, hidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'remove')
   id = sanitizeId(id, schema)
@@ -25,7 +25,7 @@ async function remove (name, id, options = {}) {
   }
   if (clearColl) await clearColl({ coll: name, id, options, record })
   if (noResult) return
-  record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
+  record.oldData = await pickRecord({ record: record.oldData, fields, schema, hidden })
   return dataOnly ? record.oldData : record
 }
 

@@ -12,7 +12,7 @@ async function update (name, id, input, options = {}) {
   input = cloneDeep(input)
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
-  const { fields, dataOnly, noHook, noValidation, ignoreHidden, noCheckUnique, noFeatureHook, noResult, noSanitize, partial = true } = options
+  const { fields, dataOnly, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, partial = true, hidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   id = sanitizeId(id, schema)
@@ -51,8 +51,8 @@ async function update (name, id, input, options = {}) {
   }
   if (clearColl) await clearColl({ coll: name, id, body: nbody, options, record })
   if (noResult) return
-  record.oldData = await pickRecord({ record: record.oldData, fields, schema, ignoreHidden })
-  record.data = await pickRecord({ record: record.data, fields, schema, ignoreHidden })
+  record.oldData = await pickRecord({ record: record.oldData, fields, schema, hidden })
+  record.data = await pickRecord({ record: record.data, fields, schema, hidden })
   return dataOnly ? record.data : record
 }
 
