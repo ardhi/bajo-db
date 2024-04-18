@@ -1,10 +1,10 @@
 async function upsert (name, input, options = {}) {
-  const { importPkg, generateId } = this.bajo.helper
+  const { generateId } = this.bajo.helper
   const { collExists, getInfo, sanitizeId, recordGet, recordCreate, recordUpdate } = this.bajoDb.helper
-  const { find } = await importPkg('lodash-es')
+  const { find } = this.bajo.helper._
   options.dataOnly = options.dataOnly ?? true
   await collExists(name, true)
-  const { schema } = await getInfo(name)
+  const { schema } = getInfo(name)
   const idField = find(schema.properties, { name: 'id' })
   let id
   if (idField.type === 'string') id = input.id ?? generateId()

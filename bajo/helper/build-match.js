@@ -7,9 +7,8 @@ function split (value, schema) {
   return { field, value: val }
 }
 
-async function buildMatch ({ input = '', schema, options }) {
-  const { importPkg } = this.bajo.helper
-  const { isPlainObject, trim } = await importPkg('lodash-es')
+function buildMatch ({ input = '', schema, options }) {
+  const { isPlainObject, trim } = this.bajo.helper._
   input = trim(input)
   let items = {}
   if (isPlainObject(input)) items = input

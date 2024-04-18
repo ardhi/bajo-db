@@ -4,16 +4,16 @@ import collectSchema from '../lib/collect-schema.js'
 import sanitizeSchema from '../lib/sanitize-schema.js'
 
 async function defSanitizer (item) {
-  const { importPkg, fatal } = this.bajo.helper
+  const { fatal } = this.bajo.helper
   if (!item.connection) fatal('\'%s@%s\' key is required', 'connection', item.name, { payload: item })
-  const { merge } = await importPkg('lodash-es')
+  const { merge } = this.bajo.helper._
   return merge({}, item)
 }
 
 async function handler ({ item, index, options }) {
   const conn = item
-  const { importPkg, log, importModule, print, getConfig } = this.bajo.helper
-  const { has, find } = await importPkg('lodash-es')
+  const { log, importModule, print, getConfig } = this.bajo.helper
+  const { has, find } = this.bajo.helper._
   if (!has(conn, 'type')) {
     log.error('%s must have a valid DB type', print.__('Connection'))
     return false
@@ -33,9 +33,8 @@ async function handler ({ item, index, options }) {
 }
 
 async function init () {
-  const { buildCollections, log, print, eachPlugins, importPkg, freeze, getConfig } = this.bajo.helper
-  const fs = await importPkg('fs-extra')
-  const { isEmpty, map } = await importPkg('lodash-es')
+  const { fs, buildCollections, log, print, eachPlugins, freeze, getConfig } = this.bajo.helper
+  const { isEmpty, map } = this.bajo.helper._
   const cfg = getConfig('bajoDb', { full: true })
   fs.ensureDirSync(`${cfg.dir.data}/attachment`)
   await collectDrivers.call(this)

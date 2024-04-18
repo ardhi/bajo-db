@@ -5,14 +5,14 @@ import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function update (name, id, input, options = {}) {
-  const { runHook, importPkg, print, isSet } = this.bajo.helper
+  const { runHook, print, isSet } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
-  const { get, forOwn, find, cloneDeep } = await importPkg('lodash-es')
+  const { get, forOwn, find, cloneDeep } = this.bajo.helper._
   input = cloneDeep(input)
-  options.dataOnly = options.dataOnly ?? true
+  const { fields, dataOnly = true, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, partial = true, hidden } = options
+  options.dataOnly = true
   options.truncateString = options.truncateString ?? true
-  const { fields, dataOnly, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, partial = true, hidden } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'update')
   id = sanitizeId(id, schema)

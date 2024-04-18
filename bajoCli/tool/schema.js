@@ -1,8 +1,8 @@
 async function schema ({ path, args }) {
   const { importPkg, print, getConfig, saveAsDownload } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
-  const { get, isEmpty, map, find } = await importPkg('lodash-es')
-  const [stripAnsi, select] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/select')
+  const { get, isEmpty, map, find } = this.bajo.helper._
+  const [stripAnsi, select] = await importPkg('bajoCli:strip-ansi', 'bajoCli:@inquirer/select')
   const config = getConfig()
   const schemas = get(this, 'bajoDb.schemas', [])
   if (isEmpty(schemas)) return print.fail('No schema found!', { exit: config.tool })

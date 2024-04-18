@@ -4,9 +4,9 @@ import addFixtures from '../../lib/add-fixtures.js'
 async function buildModel ({ path, args }) {
   const { importPkg, print, getConfig, spinner } = this.bajo.helper
   const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
-  const { isEmpty, map, trim } = await importPkg('lodash-es')
-  const [input, confirm, boxen, outmatch] = await importPkg('bajo-cli:@inquirer/input',
-    'bajo-cli:@inquirer/confirm', 'bajo-cli:boxen', 'outmatch', 'fs-extra')
+  const { isEmpty, map, trim } = this.bajo.helper._
+  const [input, confirm, boxen, outmatch] = await importPkg('bajoCli:@inquirer/input',
+    'bajoCli:@inquirer/confirm', 'bajoCli:boxen', 'outmatch')
   const config = getConfig()
   const schemas = map(this.bajoDb.schemas, 'name')
   let names = args.join(' ')
@@ -29,13 +29,13 @@ async function buildModel ({ path, args }) {
   if (!answer) return print.fail('Aborted!', { exit: config.tool })
   const conns = []
   for (const s of names) {
-    const { connection } = await getInfo(s)
+    const { connection } = getInfo(s)
     if (!conns.includes(connection.name)) conns.push(connection.name)
   }
   await start.call(this, conns, true)
   const result = { succed: 0, failed: 0, skipped: 0 }
   for (const s of names) {
-    const { schema, instance, connection } = await getInfo(s)
+    const { schema, instance, connection } = getInfo(s)
     const spin = spinner().start('Rebuilding \'%s\'...', schema.name)
     if (!instance) {
       spin.warn('Client instance not connected \'%s@%s\'. Skipped!', schema.connection, schema.name)

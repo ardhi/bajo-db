@@ -1,8 +1,7 @@
 async function exit () {
-  const { log, importPkg } = this.bajo.helper
-  const fs = await importPkg('fs-extra')
+  const { log, fs } = this.bajo.helper
   // this.bajoDb.instance.close()
-  fs.remove(this.bajoDb.socket)
+  await fs.remove(this.bajoDb.socket)
   log.trace('Instance terminated')
 }
 

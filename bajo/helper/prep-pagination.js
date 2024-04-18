@@ -15,9 +15,9 @@ function buildPageSkipLimit (filter) {
   return { page, skip, limit }
 }
 
-async function buildSort (input, schema) {
-  const { importPkg, getConfig, error } = this.bajo.helper
-  const { isEmpty, map, each, isPlainObject, isString, trim, filter, keys } = await importPkg('lodash-es')
+function buildSort (input, schema) {
+  const { getConfig, error } = this.bajo.helper
+  const { isEmpty, map, each, isPlainObject, isString, trim, filter, keys } = this.bajo.helper._
   const cfg = getConfig('bajoDb')
   let sort
   if (schema && isEmpty(input)) {
@@ -59,9 +59,9 @@ async function buildSort (input, schema) {
 async function prepPagination (filter = {}, schema, options = {}) {
   const { buildQuery, buildMatch } = this.bajoDb.helper
   const query = await buildQuery({ filter, schema, options }) ?? {}
-  const match = await buildMatch({ input: filter.match, schema, options }) ?? {}
+  const match = buildMatch({ input: filter.match, schema, options }) ?? {}
   const { page, skip, limit } = buildPageSkipLimit.call(this, filter)
-  const sort = await buildSort.call(this, filter.sort, schema)
+  const sort = buildSort.call(this, filter.sort, schema)
   return { limit, page, skip, query, sort, match }
 }
 

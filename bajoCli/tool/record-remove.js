@@ -2,8 +2,8 @@ import postProcess from './lib/post-process.js'
 
 async function removeRecord ({ path, args, options }) {
   const { importPkg, print, getConfig } = this.bajo.helper
-  const { isEmpty, map, get } = await importPkg('lodash-es')
-  const [input, select] = await importPkg('bajo-cli:@inquirer/input', 'bajo-cli:@inquirer/select')
+  const { isEmpty, map, get } = this.bajo.helper._
+  const [input, select] = await importPkg('bajoCli:@inquirer/input', 'bajoCli:@inquirer/select')
   const config = getConfig()
   const schemas = get(this, 'bajoDb.schemas', [])
   if (isEmpty(schemas)) return print.fail('No schema found!', { exit: config.tool })

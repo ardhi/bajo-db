@@ -1,9 +1,10 @@
 import path from 'path'
 
 async function copyUploaded (name, id, { req, setField, setFile, mimeType, stats } = {}) {
-  const { getPluginDataDir, importPkg } = this.bajo.helper
-  const { attachmentCreate } = this.bajoDb.helper
-  const [fs, fastGlob] = await importPkg('fs-extra', 'fast-glob')
+  const { fastGlob, fs, getPluginDataDir } = this.bajo.helper
+  const { attachmentPreCheck, attachmentCreate } = this.bajoDb.helper
+  name = attachmentPreCheck(name)
+  if (!name) return
   const sourceDir = `${getPluginDataDir('bajoWeb')}/upload/${req.id}`
   const files = await fastGlob(`${sourceDir}/*`)
   const result = []

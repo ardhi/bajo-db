@@ -1,7 +1,8 @@
 async function remove (name, id, field, file, options = {}) {
-  const { importPkg } = this.bajo.helper
-  const { attachmentGetPath } = this.bajoDb.helper
-  const fs = await importPkg('fs-extra')
+  const { fs } = this.bajo.helper
+  const { attachmentPreCheck, attachmentGetPath } = this.bajoDb.helper
+  name = attachmentPreCheck(name)
+  if (!name) return
   const path = await attachmentGetPath(name, id, field, file)
   const { req } = options
   await fs.remove(path)

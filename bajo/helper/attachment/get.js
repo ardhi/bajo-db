@@ -1,7 +1,9 @@
 async function get (name, id, field, file, options = {}) {
-  const { importPkg, error } = this.bajo.helper
-  const { attachmentFind } = this.bajoDb.helper
-  const { find } = await importPkg('lodash-es')
+  const { error } = this.bajo.helper
+  const { attachmentPreCheck, attachmentFind } = this.bajoDb.helper
+  name = attachmentPreCheck(name)
+  if (!name) return
+  const { find } = this.bajo.helper._
   const all = await attachmentFind(name, id, options)
   if (field === 'null') field = null
   const data = find(all, { field, file })

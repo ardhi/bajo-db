@@ -1,6 +1,5 @@
 async function getPath (name, id, field, file, options = {}) {
-  const { getConfig, pascalCase, importPkg, error } = this.bajo.helper
-  const fs = await importPkg('fs-extra')
+  const { fs, getConfig, pascalCase, error } = this.bajo.helper
   const cfg = getConfig()
   const dir = `${cfg.dir.data}/plugins/bajoDb/attachment/${pascalCase(name)}/${id}`
   fs.ensureDirSync(dir)

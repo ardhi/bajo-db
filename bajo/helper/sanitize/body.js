@@ -1,7 +1,7 @@
 async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
-  const { importPkg, isSet, dayjs } = this.bajo.helper
+  const { isSet, dayjs } = this.bajo.helper
   const { sanitizeDate } = this.bajoDb.helper
-  const { has, get, isString, isNumber } = await importPkg('lodash-es')
+  const { has, get, isString, isNumber } = this.bajo.helper._
   const result = {}
   for (const p of schema.properties) {
     if (partial && !has(body, p.name)) continue

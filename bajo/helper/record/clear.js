@@ -4,7 +4,6 @@ async function clear (name, options = {}) {
   const { runHook } = this.bajo.helper
   const { collExists } = this.bajoDb.helper
   await collExists(name, true)
-  options.dataOnly = options.dataOnly ?? true
   const { noHook } = options
   const { handler, schema } = await buildRecordAction.call(this, name, 'clear')
   if (!noHook) {

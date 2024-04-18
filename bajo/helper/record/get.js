@@ -6,7 +6,7 @@ async function get (name, id, options = {}) {
   const { pickRecord, collExists, sanitizeId } = this.bajoDb.helper
   const { get, set } = this.bajoDb.cache ?? {}
   options.dataOnly = options.dataOnly ?? true
-  const { fields, dataOnly, noHook, noCache, hidden = [] } = options
+  const { fields, dataOnly = true, noHook, noCache, hidden = [] } = options
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'get')
   id = sanitizeId(id, schema)

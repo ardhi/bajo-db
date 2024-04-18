@@ -15,14 +15,13 @@ const validator = {
   timestamp: ['timestamp']
 }
 
-async function buildFromDbSchema (schema, { fields = [], rule = {}, extProperties = [] } = {}) {
-  const { importPkg } = this.bajo.helper
+function buildFromDbSchema (schema, { fields = [], rule = {}, extProperties = [] } = {}) {
   const { propType } = this.bajoDb.helper
   // if (schema.validation) return schema.validation
   const {
     isPlainObject, get, each, isEmpty, isString, forOwn, keys,
     find, isArray, has, cloneDeep, concat
-  } = await importPkg('lodash-es')
+  } = this.bajo.helper._
   const obj = {}
 
   function getRuleKv (rule) {
@@ -125,13 +124,13 @@ async function buildFromDbSchema (schema, { fields = [], rule = {}, extPropertie
 }
 
 async function validate (value, joiSchema, { ns = ['bajoDb'], fields, extProperties, params } = {}) {
-  const { error, importPkg, defaultsDeep, isSet } = this.bajo.helper
+  const { error, defaultsDeep, isSet } = this.bajo.helper
   const { getInfo, sanitizeDate } = this.bajoDb.helper
-  const { isString, forOwn, find } = await importPkg('lodash-es')
+  const { isString, forOwn, find } = this.bajo.helper._
   params = defaultsDeep(params, { abortEarly: false, convert: false, rule: undefined, allowUnknown: true })
   const { rule } = params
   if (isString(joiSchema)) {
-    const { schema } = await getInfo(joiSchema)
+    const { schema } = getInfo(joiSchema)
     forOwn(value, (v, k) => {
       if (!isSet(v)) return undefined
       const p = find(schema.properties, { name: k })
@@ -141,7 +140,7 @@ async function validate (value, joiSchema, { ns = ['bajoDb'], fields, extPropert
         if (p.type === type) value[k] = sanitizeDate(value[k], { input, output: 'native' })
       }
     })
-    joiSchema = await buildFromDbSchema.call(this, schema, { fields, rule, extProperties })
+    joiSchema = buildFromDbSchema.call(this, schema, { fields, rule, extProperties })
   }
   if (!joiSchema) return value
   try {

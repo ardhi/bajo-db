@@ -5,8 +5,8 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   const { print, getConfig, saveAsDownload, importPkg, spinner } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
-  const { find, get } = await importPkg('lodash-es')
-  const [stripAnsi, confirm] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/confirm')
+  const { find, get } = this.bajo.helper._
+  const [stripAnsi, confirm] = await importPkg('bajoCli:strip-ansi', 'bajoCli:@inquirer/confirm')
   const config = getConfig()
   if (!noConfirmation && config.confirmation === false) noConfirmation = true
   params.push({ fields: config.fields, dataOnly: !config.full })
@@ -23,7 +23,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   }
   if (!cont) return
   const spin = spinner().start(`${processMsg}...`)
-  const { connection } = await getInfo(schema)
+  const { connection } = getInfo(schema)
   if (!conns.includes(connection.name)) {
     await start.call(this, connection.name)
     conns.push(connection.name)

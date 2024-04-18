@@ -3,10 +3,10 @@ import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function create (name, inputs, options) {
-  const { generateId, runHook, importPkg, isSet } = this.bajo.helper
+  const { generateId, runHook, isSet } = this.bajo.helper
   const { sanitizeBody, collExists } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
-  const { find } = await importPkg('lodash-es')
+  const { find } = this.bajo.helper._
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
   const { noHook, noValidation } = options

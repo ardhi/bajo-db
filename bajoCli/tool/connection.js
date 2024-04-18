@@ -1,8 +1,8 @@
 async function connection ({ path, args }) {
   const { importPkg, print, getConfig, saveAsDownload } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
-  const { get, isEmpty, map, find } = await importPkg('lodash-es')
-  const [stripAnsi, select] = await importPkg('bajo-cli:strip-ansi', 'bajo-cli:@inquirer/select')
+  const { get, isEmpty, map, find } = this.bajo.helper._
+  const [stripAnsi, select] = await importPkg('bajoCli:strip-ansi', 'bajoCli:@inquirer/select')
   const config = getConfig()
   const connections = get(this, 'bajoDb.config.connections', [])
   if (isEmpty(connections)) return print.fail('No connection found!', { exit: config.tool })

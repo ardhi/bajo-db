@@ -8,7 +8,8 @@ async function findOne (name, filter = {}, options = {}) {
   const { fields, dataOnly = true, noHook, noCache, hidden } = options
   await collExists(name, true)
   filter.limit = 1
-  options.noCount = true
+  options.count = false
+  options.dataOnly = false
   const { handler, schema } = await buildRecordAction.call(this, name, 'find')
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordFindOne', name, filter, options)

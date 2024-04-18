@@ -1,8 +1,8 @@
 import nql from '@tryghost/nql'
 
 async function buildQuery ({ filter, schema, options = {} } = {}) {
-  const { importPkg, error } = this.bajo.helper
-  const { trim, isString, isPlainObject } = await importPkg('lodash-es')
+  const { error } = this.bajo.helper
+  const { trim, isString, isPlainObject } = this.bajo.helper._
   let query = {}
   if (isString(filter.query)) {
     if (trim(filter.query).startsWith('{')) query = JSON.parse(filter.query)

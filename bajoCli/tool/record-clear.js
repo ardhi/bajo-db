@@ -1,8 +1,8 @@
 import postProcess from './lib/post-process.js'
 
 async function clearRecord ({ path, args, options }) {
-  const { importPkg, print, getConfig } = this.bajo.helper
-  const { isEmpty, get } = await importPkg('lodash-es')
+  const { print, getConfig } = this.bajo.helper
+  const { isEmpty, get } = this.bajo.helper._
   const config = getConfig()
   const schemas = get(this, 'bajoDb.schemas', [])
   if (isEmpty(schemas)) return print.fail('No schema found!', { exit: config.tool })

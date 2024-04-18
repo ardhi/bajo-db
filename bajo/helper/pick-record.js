@@ -19,8 +19,7 @@ async function transform ({ record, schema, hidden = [] } = {}) {
 }
 
 async function pickRecord ({ record, fields, schema = {}, hidden = [] } = {}) {
-  const { importPkg } = this.bajo.helper
-  const { isArray, pick, clone, isEmpty, omit } = await importPkg('lodash-es')
+  const { isArray, pick, clone, isEmpty, omit } = this.bajo.helper._
   if (isEmpty(record)) return record
   if (hidden.length > 0) record = omit(record, hidden)
   if (!isArray(fields)) return await transform.call(this, { record, schema, hidden })

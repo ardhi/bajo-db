@@ -1,9 +1,10 @@
 import mergeAttachmentInfo from '../../../lib/merge-attachment-info.js'
 
 async function create (name, id, options = {}) {
-  const { error, importPkg } = this.bajo.helper
-  const { attachmentGetPath } = this.bajoDb.helper
-  const fs = await importPkg('fs-extra')
+  const { fs, error } = this.bajo.helper
+  const { attachmentPreCheck, attachmentGetPath } = this.bajoDb.helper
+  name = attachmentPreCheck(name)
+  if (!name) return
   const { source, field, file } = options
   if (!source) throw error('Invalid source')
   const baseDir = await attachmentGetPath(name, id, field, file, { dirOnly: true })

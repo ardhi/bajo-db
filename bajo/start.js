@@ -1,8 +1,8 @@
 import addFixtures from '../lib/add-fixtures.js'
 
 async function start (conns, noRebuild) {
-  const { getConfig, importPkg, importModule, log } = this.bajo.helper
-  const { find, filter, isString, map } = await importPkg('lodash-es')
+  const { getConfig, importModule, log } = this.bajo.helper
+  const { find, filter, isString, map } = this.bajo.helper._
   if (conns === 'all') conns = this.bajoDb.connections
   else if (isString(conns)) conns = filter(this.bajoDb.connections, { name: conns })
   else conns = map(conns, c => find(this.bajoDb.connections, { name: c }))

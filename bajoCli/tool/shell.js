@@ -16,8 +16,8 @@ const mods = [
 
 async function shell ({ path, args, options }) {
   const { importPkg, print, importModule, resolvePath, currentLoc } = this.bajo.helper
-  const prompts = await importPkg('bajo-cli:@inquirer/prompts')
-  const { map, find, repeat, kebabCase } = await importPkg('lodash-es')
+  const prompts = await importPkg('bajoCli:@inquirer/prompts')
+  const { map, find, repeat, kebabCase } = this.bajo.helper._
   const { select, Separator, confirm } = prompts
   const choices = map(mods, m => m === '-' ? new Separator() : ({ value: m.method }))
   const dir = currentLoc(import.meta).dir
