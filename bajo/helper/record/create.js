@@ -16,8 +16,10 @@ async function create (name, input, options = {}) {
   await collExists(name, true)
   const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
   const idField = find(schema.properties, { name: 'id' })
-  if (idField.type === 'string') input.id = input.id ?? generateId()
-  else if (idField.type === 'integer') input.id = input.id ?? generateId('int')
+  if (!isSet(input.id)) {
+    if (idField.type === 'string') input.id = generateId()
+    else if (['integer', 'smallint'].includes(idField.type) && !idField.autoInc) input.id = generateId('int')
+  }
   let body = noSanitize ? input : await sanitizeBody({ body: input, schema, strict: true })
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
@@ -25,7 +27,7 @@ async function create (name, input, options = {}) {
   }
   if (!noFeatureHook) await execFeatureHook.call(this, 'beforeCreate', { schema, body })
   if (!noValidation) body = await execValidation.call(this, { noHook, name, body, options })
-  if (!noCheckUnique) await checkUnique.call(this, { schema, body })
+  if (isSet(body.id) && !noCheckUnique) await checkUnique.call(this, { schema, body })
   let record = {}
   try {
     const nbody = {}

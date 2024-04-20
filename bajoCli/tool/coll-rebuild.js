@@ -1,7 +1,7 @@
 import start from '../../bajo/start.js'
 import addFixtures from '../../lib/add-fixtures.js'
 
-async function buildModel ({ path, args }) {
+async function collRebuild ({ path, args }) {
   const { importPkg, print, getConfig, spinner } = this.bajo.helper
   const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
   const { isEmpty, map, trim } = this.bajo.helper._
@@ -36,7 +36,7 @@ async function buildModel ({ path, args }) {
   const result = { succed: 0, failed: 0, skipped: 0 }
   for (const s of names) {
     const { schema, instance, connection } = getInfo(s)
-    const spin = spinner().start('Rebuilding \'%s\'...', schema.name)
+    const spin = spinner({ showCounter: true }).start('Rebuilding \'%s\'...', schema.name)
     if (!instance) {
       spin.warn('Client instance not connected \'%s@%s\'. Skipped!', schema.connection, schema.name)
       result.skipped++
@@ -47,24 +47,24 @@ async function buildModel ({ path, args }) {
       if (config.force) {
         try {
           await collDrop(schema, spinner)
-          spin.setText('Model \'%s\' successfully dropped', schema.name)
+          spin.setText('Collection \'%s\' successfully dropped', schema.name)
         } catch (err) {
           spin.fail('Error on dropping collection \'%s\': %s', schema.name, err.message)
           result.failed++
           continue
         }
       } else {
-        spin.fail('Model \'%s\' exists. Won\'t rebuild without --force', schema.name)
+        spin.fail('Collection \'%s\' exists. Won\'t rebuild without --force', schema.name)
         result.failed++
         continue
       }
     }
     try {
       await collCreate(schema, spinner)
-      if (connection.memory) spin.succeed('Model \'%s\' successfully created', schema.name)
+      if (connection.memory) spin.succeed('Collection \'%s\' successfully created', schema.name)
       else {
         const fixture = await addFixtures.call(this, schema, spin)
-        spin.succeed('Model \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
+        spin.succeed('Collection \'%s\' successfully created, with fixture: added %d, rejected: %s', schema.name, fixture.success, fixture.failed)
       }
       result.succed++
     } catch (err) {
@@ -76,4 +76,4 @@ async function buildModel ({ path, args }) {
   print.info('Done! Succeded: %d, failed: %s, skipped: %d', result.succed, result.failed, result.skipped)
 }
 
-export default buildModel
+export default collRebuild

@@ -3,7 +3,7 @@ function validationErrorMessage (err) {
   if (err.details) {
     text += ' -> '
     text += err.details.map((d, idx) => {
-      return `${d.field}: ${d.error} (${d.value})`
+      return `${d.field}@${err.collection}: ${d.error} (${d.value})`
     }).join(', ')
   }
   return text
