@@ -1,4 +1,4 @@
-import buildRecordAction from '../../../lib/build-record-action.js'
+import resolveMethod from '../../../lib/resolve-method.js'
 import checkUnique from '../../../lib/check-unique.js'
 import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 import execValidation from '../../../lib/exec-validation.js'
@@ -14,7 +14,7 @@ async function update (name, id, input, options = {}) {
   options.dataOnly = true
   options.truncateString = options.truncateString ?? true
   await collExists(name, true)
-  const { handler, schema } = await buildRecordAction.call(this, name, 'update')
+  const { handler, schema } = await resolveMethod.call(this, name, 'record-update')
   id = sanitizeId(id, schema)
   let body = noSanitize ? input : await sanitizeBody({ body: input, schema, partial, strict: true })
   delete body.id

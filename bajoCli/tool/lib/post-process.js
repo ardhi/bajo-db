@@ -1,8 +1,7 @@
-import start from '../../../bajo/start.js'
 const conns = []
 
 async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
-  const { print, getConfig, saveAsDownload, importPkg, spinner } = this.bajo.helper
+  const { print, getConfig, saveAsDownload, importPkg, spinner, startPlugin } = this.bajo.helper
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
   const { find, get } = this.bajo.helper._
@@ -25,7 +24,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   const spin = spinner().start(`${processMsg}...`)
   const { connection } = getInfo(schema)
   if (!conns.includes(connection.name)) {
-    await start.call(this, connection.name)
+    await startPlugin('bajoDb', connection.name)
     conns.push(connection.name)
   }
   try {

@@ -1,6 +1,6 @@
 import postProcess from './lib/post-process.js'
 
-async function findRecord ({ path, args, options }) {
+async function statCount ({ path, args, options }) {
   const { importPkg, print, getConfig } = this.bajo.helper
   const { isEmpty, map, get } = this.bajo.helper._
   const [select, input] = await importPkg('bajoCli:@inquirer/select', 'bajoCli:@inquirer/input')
@@ -20,7 +20,7 @@ async function findRecord ({ path, args, options }) {
     })
   }
   const filter = { query }
-  await postProcess.call(this, { noConfirmation: true, handler: 'recordCount', params: [schema, filter], path, processMsg: 'Counting record(s)', options })
+  await postProcess.call(this, { noConfirmation: true, handler: 'statCount', params: [schema, filter], path, processMsg: 'Counting record(s)', options })
 }
 
-export default findRecord
+export default statCount

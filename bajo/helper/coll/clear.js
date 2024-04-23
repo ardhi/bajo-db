@@ -5,15 +5,15 @@ async function clear (name, options = {}) {
   const { collExists } = this.bajoDb.helper
   await collExists(name, true)
   const { noHook } = options
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-clear')
+  const { handler, schema } = await resolveMethod.call(this, name, 'coll-clear')
   if (!noHook) {
-    await runHook('bajoDb:onBeforeRecordClear', name, options)
-    await runHook(`bajoDb.${name}:onBeforeRecordClear`, options)
+    await runHook('bajoDb:onBeforeCollClear', name, options)
+    await runHook(`bajoDb.${name}:onBeforeCollClear`, options)
   }
   const resp = await handler.call(this, { schema, options })
   if (!noHook) {
-    await runHook(`bajoDb.${name}:onAfterRecordClear`, options, resp)
-    await runHook('bajoDb:onAfterRecordClear', name, options, resp)
+    await runHook(`bajoDb.${name}:onAfterCollClear`, options, resp)
+    await runHook('bajoDb:onAfterCollClear', name, options, resp)
   }
   return resp
 }

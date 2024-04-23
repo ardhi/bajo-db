@@ -1,8 +1,7 @@
-import start from '../../bajo/start.js'
 import addFixtures from '../../lib/add-fixtures.js'
 
 async function collRebuild ({ path, args }) {
-  const { importPkg, print, getConfig, spinner } = this.bajo.helper
+  const { importPkg, print, getConfig, spinner, startPlugin } = this.bajo.helper
   const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
   const { isEmpty, map, trim } = this.bajo.helper._
   const [input, confirm, boxen, outmatch] = await importPkg('bajoCli:@inquirer/input',
@@ -32,7 +31,7 @@ async function collRebuild ({ path, args }) {
     const { connection } = getInfo(s)
     if (!conns.includes(connection.name)) conns.push(connection.name)
   }
-  await start.call(this, conns, true)
+  await startPlugin('bajoDb', conns)
   const result = { succed: 0, failed: 0, skipped: 0 }
   for (const s of names) {
     const { schema, instance, connection } = getInfo(s)

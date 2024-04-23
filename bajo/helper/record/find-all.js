@@ -1,7 +1,7 @@
 async function findAll (name, filter = {}, options = {}) {
   const { recordFind } = this.bajoDb.helper
   filter.page = 1
-  filter.limit = 25
+  filter.limit = 100
   options.dataOnly = true
   const all = []
   for (;;) {

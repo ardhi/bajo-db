@@ -1,6 +1,6 @@
 import addFixtures from '../lib/add-fixtures.js'
 
-async function start (conns, noRebuild) {
+async function start (conns = 'all', noRebuild = true) {
   const { getConfig, importModule, log } = this.bajo.helper
   const { find, filter, isString, map } = this.bajo.helper._
   if (conns === 'all') conns = this.bajoDb.connections

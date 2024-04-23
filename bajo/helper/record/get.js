@@ -1,4 +1,4 @@
-import buildRecordAction from '../../../lib/build-record-action.js'
+import resolveMethod from '../../../lib/resolve-method.js'
 import singleRelRows from '../../../lib/single-rel-rows.js'
 
 async function get (name, id, options = {}) {
@@ -8,7 +8,7 @@ async function get (name, id, options = {}) {
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly = true, noHook, noCache, hidden = [] } = options
   await collExists(name, true)
-  const { handler, schema } = await buildRecordAction.call(this, name, 'get')
+  const { handler, schema } = await resolveMethod.call(this, name, 'record-get')
   id = sanitizeId(id, schema)
   options.dataOnly = false
   if (!noHook) {

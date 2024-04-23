@@ -1,11 +1,10 @@
-async function drop (name, spinner) {
-  const { getConfig, importModule, runHook } = this.bajo.helper
-  const { getInfo } = this.bajoDb.helper
-  const { driver, schema } = getInfo(name)
-  const cfg = getConfig(driver.provider, { full: true })
-  const mod = await importModule(`${cfg.dir.pkg}/bajoDb/method/coll/drop.js`)
+import resolveMethod from '../../../lib/resolve-method.js'
+
+async function drop (name, options = {}) {
+  const { runHook } = this.bajo.helper
+  const { handler, schema } = await resolveMethod.call(this, name, 'coll-drop', options)
   await runHook('bajoDb:beforeCollDrop' + name, schema)
-  await mod.call(this, schema)
+  await handler.call(this, { schema, options })
   await runHook('bajoDb:afterCollDrop' + name, schema)
 }
 

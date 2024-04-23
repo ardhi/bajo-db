@@ -1,4 +1,4 @@
-import buildRecordAction from '../../../lib/build-record-action.js'
+import resolveMethod from '../../../lib/resolve-method.js'
 import multiRelRows from '../../../lib/multi-rel-rows.js'
 
 async function find (name, filter = {}, options = {}) {
@@ -10,7 +10,7 @@ async function find (name, filter = {}, options = {}) {
   options.dataOnly = false
 
   await collExists(name, true)
-  const { handler, schema } = await buildRecordAction.call(this, name, 'find')
+  const { handler, schema } = await resolveMethod.call(this, name, 'record-find')
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordFind', name, filter, options)
     await runHook(`bajoDb.${name}:onBeforeRecordFind`, filter, options)

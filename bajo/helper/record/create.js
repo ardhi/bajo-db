@@ -1,4 +1,4 @@
-import buildRecordAction from '../../../lib/build-record-action.js'
+import resolveMethod from '../../../lib/resolve-method.js'
 import checkUnique from '../../../lib/check-unique.js'
 import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 import execValidation from '../../../lib/exec-validation.js'
@@ -14,7 +14,7 @@ async function create (name, input, options = {}) {
   options.truncateString = options.truncateString ?? true
   options.dataOnly = false
   await collExists(name, true)
-  const { handler, schema } = await buildRecordAction.call(this, name, 'create', options)
+  const { handler, schema } = await resolveMethod.call(this, name, 'record-create', options)
   const idField = find(schema.properties, { name: 'id' })
   if (!isSet(input.id)) {
     if (idField.type === 'string') input.id = generateId()

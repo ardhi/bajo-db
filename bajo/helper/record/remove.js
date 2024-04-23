@@ -1,4 +1,4 @@
-import buildRecordAction from '../../../lib/build-record-action.js'
+import resolveMethod from '../../../lib/resolve-method.js'
 import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 
 async function remove (name, id, options = {}) {
@@ -8,7 +8,7 @@ async function remove (name, id, options = {}) {
   const { fields, dataOnly = true, noHook, noResult, hidden } = options
   options.dataOnly = false
   await collExists(name, true)
-  const { handler, schema } = await buildRecordAction.call(this, name, 'remove')
+  const { handler, schema } = await resolveMethod.call(this, name, 'record-remove')
   id = sanitizeId(id, schema)
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordRemove', name, id, options)

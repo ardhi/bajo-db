@@ -15,7 +15,7 @@ function buildPageSkipLimit (filter) {
   return { page, skip, limit }
 }
 
-function buildSort (input, schema) {
+function buildSort (input, schema, allowSortUnindexed) {
   const { getConfig, error } = this.bajo.helper
   const { isEmpty, map, each, isPlainObject, isString, trim, filter, keys } = this.bajo.helper._
   const cfg = getConfig('bajoDb')
@@ -36,7 +36,8 @@ function buildSort (input, schema) {
       const item = {}
       each(input.split('+'), text => {
         let [col, dir] = map(trim(text).split(':'), i => trim(i))
-        dir = parseInt(dir) || 1
+        dir = (dir ?? '').toUpperCase()
+        dir = dir === 'DESC' ? -1 : parseInt(dir) || 1
         item[col] = dir / Math.abs(dir)
       })
       sort = item
@@ -48,7 +49,7 @@ function buildSort (input, schema) {
       })
       const items = keys(sort)
       each(items, i => {
-        if (!indexes.includes(i)) throw error('Sort on unindexed field: \'%s@%s\'', i, schema.name)
+        if (!indexes.includes(i) && !allowSortUnindexed) throw error('Sort on unindexed field: \'%s@%s\'', i, schema.name)
         // if (schema.fullText.fields.includes(i)) throw error('Can\'t sort on full-text index: \'%s@%s\'', i, schema.name)
       })
     }
@@ -61,7 +62,7 @@ async function prepPagination (filter = {}, schema, options = {}) {
   const query = await buildQuery({ filter, schema, options }) ?? {}
   const match = buildMatch({ input: filter.match, schema, options }) ?? {}
   const { page, skip, limit } = buildPageSkipLimit.call(this, filter)
-  const sort = buildSort.call(this, filter.sort, schema)
+  const sort = buildSort.call(this, filter.sort, schema, options.allowSortUnindexed)
   return { limit, page, skip, query, sort, match }
 }
 

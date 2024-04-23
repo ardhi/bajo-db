@@ -1,4 +1,4 @@
-import buildRecordAction from '../../../lib/build-record-action.js'
+import resolveMethod from '../../../lib/resolve-method.js'
 import singleRelRows from '../../../lib/single-rel-rows.js'
 
 async function findOne (name, filter = {}, options = {}) {
@@ -10,7 +10,7 @@ async function findOne (name, filter = {}, options = {}) {
   filter.limit = 1
   options.count = false
   options.dataOnly = false
-  const { handler, schema } = await buildRecordAction.call(this, name, 'find')
+  const { handler, schema } = await resolveMethod.call(this, name, 'record-find')
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordFindOne', name, filter, options)
     await runHook(`bajoDb.${name}:onBeforeRecordFindOne`, filter, options)
