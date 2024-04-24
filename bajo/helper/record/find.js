@@ -3,14 +3,15 @@ import multiRelRows from '../../../lib/multi-rel-rows.js'
 
 async function find (name, filter = {}, options = {}) {
   const { runHook, isSet } = this.bajo.helper
-  const { collExists, pickRecord } = this.bajoDb.helper
+  const { collExists, pickRecord, buildQuery, buildMatch } = this.bajoDb.helper
   const { get, set } = this.bajoDb.cache ?? {}
   const { fields, dataOnly = true, noHook, noCache, hidden } = options
   options.count = options.count ?? false
   options.dataOnly = false
-
   await collExists(name, true)
   const { handler, schema } = await resolveMethod.call(this, name, 'record-find')
+  filter.query = await buildQuery({ filter, schema, options }) ?? {}
+  filter.match = buildMatch({ input: filter.match, schema, options }) ?? {}
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordFind', name, filter, options)
     await runHook(`bajoDb.${name}:onBeforeRecordFind`, filter, options)

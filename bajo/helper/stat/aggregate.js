@@ -2,7 +2,7 @@ import resolveMethod from '../../../lib/resolve-method.js'
 
 async function aggregate (name, filter = {}, options = {}) {
   const { runHook } = this.bajo.helper
-  const { collExists } = this.bajoDb.helper
+  const { collExists, buildQuery, buildMatch } = this.bajoDb.helper
   const { dataOnly = true, noHook, type } = options
   options.dataOnly = false
   await collExists(name, true)
@@ -12,6 +12,8 @@ async function aggregate (name, filter = {}, options = {}) {
     await runHook(`bajoDb.${name}:onBeforeStatAggregate`, type, filter, options)
   }
   const rec = await handler.call(this, { schema, filter, options })
+  filter.query = await buildQuery({ filter, schema, options }) ?? {}
+  filter.match = buildMatch({ input: filter.match, schema, options }) ?? {}
   if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterStatAggregate`, type, filter, options, rec)
     await runHook('bajoDb:onAfterStatAggregate', name, type, filter, options, rec)

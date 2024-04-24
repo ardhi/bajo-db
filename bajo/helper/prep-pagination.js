@@ -58,12 +58,9 @@ function buildSort (input, schema, allowSortUnindexed) {
 }
 
 async function prepPagination (filter = {}, schema, options = {}) {
-  const { buildQuery, buildMatch } = this.bajoDb.helper
-  const query = await buildQuery({ filter, schema, options }) ?? {}
-  const match = buildMatch({ input: filter.match, schema, options }) ?? {}
   const { page, skip, limit } = buildPageSkipLimit.call(this, filter)
   const sort = buildSort.call(this, filter.sort, schema, options.allowSortUnindexed)
-  return { limit, page, skip, query, sort, match }
+  return { limit, page, skip, sort }
 }
 
 export default prepPagination
