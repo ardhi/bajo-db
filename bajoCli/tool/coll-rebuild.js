@@ -1,11 +1,11 @@
 import addFixtures from '../../lib/add-fixtures.js'
 
 async function collRebuild ({ path, args }) {
-  const { importPkg, print, getConfig, spinner, startPlugin } = this.bajo.helper
+  const { importPkg, print, getConfig, spinner, startPlugin, outmatch } = this.bajo.helper
   const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
   const { isEmpty, map, trim } = this.bajo.helper._
-  const [input, confirm, boxen, outmatch] = await importPkg('bajoCli:@inquirer/input',
-    'bajoCli:@inquirer/confirm', 'bajoCli:boxen', 'outmatch')
+  const [input, confirm, boxen] = await importPkg('bajoCli:@inquirer/input',
+    'bajoCli:@inquirer/confirm', 'bajoCli:boxen')
   const config = getConfig()
   const schemas = map(this.bajoDb.schemas, 'name')
   let names = args.join(' ')
