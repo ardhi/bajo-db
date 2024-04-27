@@ -12,7 +12,7 @@ async function defSanitizer (item) {
 
 async function handler ({ item, index, options }) {
   const conn = item
-  const { log, importModule, print, getConfig } = this.bajo.helper
+  const { log, importModule, print } = this.bajo.helper
   const { has, find } = this.bajo.helper._
   if (!has(conn, 'type')) {
     log.error('%s must have a valid DB type', print.__('Connection'))
@@ -24,8 +24,7 @@ async function handler ({ item, index, options }) {
     return false
   }
   if (!has(conn, 'name')) conn.name = 'default'
-  const cfg = getConfig(driver.provider, { full: true })
-  let sanitizer = await importModule(`${cfg.dir.pkg}/bajoDb/lib/${conn.type}/conn-sanitizer.js`)
+  let sanitizer = await importModule(`${driver.provider}:/bajoDb/lib/${conn.type}/conn-sanitizer.js`)
   if (!sanitizer) sanitizer = defSanitizer
   const result = await sanitizer.call(this, conn)
   result.driver = driver.driver
