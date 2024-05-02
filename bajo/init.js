@@ -27,12 +27,13 @@ async function handler ({ item, index, options }) {
   let sanitizer = await importModule(`${driver.provider}:/bajoDb/lib/${conn.type}/conn-sanitizer.js`)
   if (!sanitizer) sanitizer = defSanitizer
   const result = await sanitizer.call(this, conn)
+  result.proxy = result.proxy ?? false
   result.driver = driver.driver
   return result
 }
 
 async function init () {
-  const { fs, buildCollections, log, print, eachPlugins, freeze, getConfig } = this.bajo.helper
+  const { fs, buildCollections, log, print, eachPlugins, freeze, getConfig, join } = this.bajo.helper
   const { isEmpty, map } = this.bajo.helper._
   const cfg = getConfig('bajoDb', { full: true })
   fs.ensureDirSync(`${cfg.dir.data}/attachment`)
@@ -40,9 +41,10 @@ async function init () {
   this.bajoDb.connections = await buildCollections({ handler, dupChecks: ['name'] })
   if (this.bajoDb.connections.length === 0) log.warn('No %s found!', print.__('connection'))
   freeze(this.bajoDb.connections)
-  log.debug('Loaded connections: %s', map(this.bajoDb.connections, 'name').join(', '))
+  log.debug('Loaded connections: %s', join(map(this.bajoDb.connections, 'name')))
   this.bajoDb.feature = {}
   await eachPlugins(collectFeature, { glob: 'feature/*.js' })
+  log.debug('Loaded features: %s', join(Object.keys(this.bajoDb.feature)))
   this.bajoDb.schemas = []
   const result = await eachPlugins(collectSchema, { glob: 'schema/*.*' })
   if (isEmpty(result)) log.warn('No %s found!', print.__('schema'))

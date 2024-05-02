@@ -4,10 +4,10 @@ const types = ['daily', 'monthly', 'yearly']
 
 async function histogram (name, filter = {}, options = {}) {
   const { runHook, error } = this.bajo.helper
-  const { collExists, buildQuery, buildMatch } = this.bajoDb.helper
+  const { collExists, buildQuery, buildMatch, join } = this.bajoDb.helper
   const { dataOnly = true, noHook, type } = options
   options.dataOnly = false
-  if (!types.includes(type)) throw error('Histogram type must be one of these: %s', types.join(', '))
+  if (!types.includes(type)) throw error('Histogram type must be one of these: %s', join(types))
   await collExists(name, true)
   const { handler, schema } = await resolveMethod.call(this, name, 'stat-histogram')
   filter.query = await buildQuery({ filter, schema, options }) ?? {}
