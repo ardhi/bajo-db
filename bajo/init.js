@@ -12,19 +12,17 @@ async function defSanitizer (item) {
 
 async function handler ({ item, index, options }) {
   const conn = item
-  const { log, importModule, print } = this.bajo.helper
+  const { log, importModule, print, fatal } = this.bajo.helper
   const { has, find } = this.bajo.helper._
   if (!has(conn, 'type')) {
     log.error('%s must have a valid DB type', print.__('Connection'))
     return false
   }
-  const driver = find(this.bajoDb.drivers, { type: conn.type })
-  if (!driver) {
-    log.error('Unsupported DB type \'%s\'', conn.type)
-    return false
-  }
+  const [plugin, type] = conn.type.split(':')
+  const driver = find(this.bajoDb.drivers, { plugin, type })
+  if (!driver) fatal('Unsupported DB type \'%s\'', conn.type)
   if (!has(conn, 'name')) conn.name = 'default'
-  let sanitizer = await importModule(`${driver.provider}:/bajoDb/lib/${conn.type}/conn-sanitizer.js`)
+  let sanitizer = await importModule(`${plugin}:/bajoDb/lib/${type}/conn-sanitizer.js`)
   if (!sanitizer) sanitizer = defSanitizer
   const result = await sanitizer.call(this, conn)
   result.proxy = result.proxy ?? false
