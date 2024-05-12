@@ -59,7 +59,11 @@ function buildSort (input, schema, allowSortUnindexed) {
 
 async function prepPagination (filter = {}, schema, options = {}) {
   const { page, skip, limit } = buildPageSkipLimit.call(this, filter)
-  const sort = buildSort.call(this, filter.sort, schema, options.allowSortUnindexed)
+  let sortInput = filter.sort
+  try {
+    sortInput = JSON.parse(sortInput)
+  } catch (err) {}
+  const sort = buildSort.call(this, sortInput, schema, options.allowSortUnindexed)
   return { limit, page, skip, sort }
 }
 

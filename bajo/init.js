@@ -4,21 +4,20 @@ import collectSchema from '../lib/collect-schema.js'
 import sanitizeSchema from '../lib/sanitize-schema.js'
 
 async function defSanitizer (item) {
-  const { fatal } = this.bajo.helper
-  if (!item.connection) fatal('\'%s@%s\' key is required', 'connection', item.name, { payload: item })
+  // if (!item.connection) fatal('\'%s@%s\' key is required', 'connection', item.name, { payload: item })
   const { merge } = this.bajo.helper._
   return merge({}, item)
 }
 
 async function handler ({ item, index, options }) {
   const conn = item
-  const { log, importModule, print, fatal } = this.bajo.helper
+  const { log, importModule, print, fatal, breakNsPath } = this.bajo.helper
   const { has, find } = this.bajo.helper._
   if (!has(conn, 'type')) {
     log.error('%s must have a valid DB type', print.__('Connection'))
     return false
   }
-  const [plugin, type] = conn.type.split(':')
+  const [plugin, type] = breakNsPath(conn.type)
   const driver = find(this.bajoDb.drivers, { plugin, type })
   if (!driver) fatal('Unsupported DB type \'%s\'', conn.type)
   if (!has(conn, 'name')) conn.name = 'default'

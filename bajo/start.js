@@ -1,13 +1,13 @@
 import addFixtures from '../lib/add-fixtures.js'
 
 async function start (conns = 'all', noRebuild = true) {
-  const { importModule, log } = this.bajo.helper
+  const { importModule, log, breakNsPath } = this.bajo.helper
   const { find, filter, isString, map } = this.bajo.helper._
   if (conns === 'all') conns = this.bajoDb.connections
   else if (isString(conns)) conns = filter(this.bajoDb.connections, { name: conns })
   else conns = map(conns, c => find(this.bajoDb.connections, { name: c }))
   for (const c of conns) {
-    const [plugin] = c.type.split(':')
+    const [plugin] = breakNsPath(c.type)
     const schemas = filter(this.bajoDb.schemas, { connection: c.name })
     const mod = await importModule(`${plugin}:/bajoDb/boot/instantiation.js`)
     await mod.call(this, { connection: c, noRebuild, schemas })
