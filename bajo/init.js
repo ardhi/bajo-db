@@ -21,7 +21,9 @@ async function handler ({ item, index, options }) {
   const driver = find(this.bajoDb.drivers, { plugin, type })
   if (!driver) fatal('Unsupported DB type \'%s\'', conn.type)
   if (!has(conn, 'name')) conn.name = 'default'
-  let sanitizer = await importModule(`${plugin}:/bajoDb/lib/${type}/conn-sanitizer.js`)
+  let file = `${plugin}:/bajoDb/lib/${type}/conn-sanitizer.js`
+  if (driver.provider) file = `${driver.provider}:/${plugin}/lib/${type}/conn-sanitizer.js`
+  let sanitizer = await importModule(file)
   if (!sanitizer) sanitizer = defSanitizer
   const result = await sanitizer.call(this, conn)
   result.proxy = result.proxy ?? false
