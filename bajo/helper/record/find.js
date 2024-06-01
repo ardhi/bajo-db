@@ -1,11 +1,14 @@
 import resolveMethod from '../../../lib/resolve-method.js'
 import multiRelRows from '../../../lib/multi-rel-rows.js'
 
-async function find (name, filter = {}, options = {}) {
+async function find (name, filter = {}, opts = {}) {
   const { runHook, isSet } = this.bajo.helper
   const { collExists, pickRecord, buildQuery, buildMatch } = this.bajoDb.helper
   const { get, set } = this.bajoDb.cache ?? {}
-  const { fields, dataOnly = true, noHook, noCache, hidden } = options
+  const { cloneDeep } = this.bajo.helper._
+  const options = cloneDeep(opts)
+  options.dataOnly = options.dataOnly ?? true
+  const { fields, dataOnly, noHook, noCache, hidden } = options
   options.count = options.count ?? false
   options.dataOnly = false
   await collExists(name, true)

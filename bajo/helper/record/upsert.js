@@ -1,7 +1,9 @@
-async function upsert (name, input, options = {}) {
+async function upsert (name, input, opts = {}) {
   const { generateId } = this.bajo.helper
   const { collExists, getInfo, sanitizeId, recordGet, recordCreate, recordUpdate } = this.bajoDb.helper
   const { find } = this.bajo.helper._
+  const { cloneDeep } = this.bajo.helper._
+  const options = cloneDeep(opts)
   options.dataOnly = options.dataOnly ?? true
   await collExists(name, true)
   const { schema } = getInfo(name)

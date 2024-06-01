@@ -4,13 +4,15 @@ import handleAttachmentUpload from '../../../lib/handle-attachment-upload.js'
 import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
-async function create (name, input, options = {}) {
+async function create (name, input, opts = {}) {
   const { generateId, runHook, print, isSet } = this.bajo.helper
   const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
   const { clearColl } = this.bajoDb.cache ?? {}
   const { get, find, forOwn, cloneDeep } = this.bajo.helper._
+  const options = cloneDeep(opts)
+  options.dataOnly = options.dataOnly ?? true
   input = cloneDeep(input)
-  const { fields, dataOnly = true, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, hidden } = options
+  const { fields, dataOnly, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, hidden } = options
   options.truncateString = options.truncateString ?? true
   options.dataOnly = false
   await collExists(name, true)

@@ -1,11 +1,14 @@
 import resolveMethod from '../../../lib/resolve-method.js'
 import singleRelRows from '../../../lib/single-rel-rows.js'
 
-async function findOne (name, filter = {}, options = {}) {
+async function findOne (name, filter = {}, opts = {}) {
   const { runHook, isSet } = this.bajo.helper
   const { collExists, pickRecord } = this.bajoDb.helper
   const { get, set } = this.bajoDb.cache ?? {}
-  const { fields, dataOnly = true, noHook, noCache, hidden } = options
+  const { cloneDeep } = this.bajo.helper._
+  const options = cloneDeep(opts)
+  options.dataOnly = options.dataOnly ?? true
+  const { fields, dataOnly, noHook, noCache, hidden } = options
   await collExists(name, true)
   filter.limit = 1
   options.count = false

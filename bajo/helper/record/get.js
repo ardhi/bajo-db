@@ -1,12 +1,14 @@
 import resolveMethod from '../../../lib/resolve-method.js'
 import singleRelRows from '../../../lib/single-rel-rows.js'
 
-async function get (name, id, options = {}) {
+async function get (name, id, opts = {}) {
   const { runHook, isSet } = this.bajo.helper
   const { pickRecord, collExists, sanitizeId } = this.bajoDb.helper
   const { get, set } = this.bajoDb.cache ?? {}
+  const { cloneDeep } = this.bajo.helper._
+  const options = cloneDeep(opts)
   options.dataOnly = options.dataOnly ?? true
-  const { fields, dataOnly = true, noHook, noCache, hidden = [] } = options
+  const { fields, dataOnly, noHook, noCache, hidden = [] } = options
   await collExists(name, true)
   const { handler, schema } = await resolveMethod.call(this, name, 'record-get')
   id = sanitizeId(id, schema)
