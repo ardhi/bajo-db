@@ -1,8 +1,8 @@
 import postProcess from './lib/post-process.js'
 
 async function createRecord ({ path, args, options }) {
-  const { importPkg, print, getConfig } = this.bajo.helper
-  const { isEmpty, map, isPlainObject, get } = this.bajo.helper._
+  const { importPkg, print, getConfig } = this.app.bajo
+  const { isEmpty, map, isPlainObject, get } = this.app.bajo.lib._
   const [input, select, boxen] = await importPkg('bajoCli:@inquirer/input',
     'bajoCli:@inquirer/select', 'bajoCli:boxen')
   const config = getConfig()
@@ -11,20 +11,20 @@ async function createRecord ({ path, args, options }) {
   let [schema, body] = args
   if (isEmpty(schema)) {
     schema = await select({
-      message: print.__('Please select a schema:'),
+      message: print.write('Please select a schema:'),
       choices: map(schemas, s => ({ value: s.name }))
     })
   }
   if (isEmpty(body)) {
     body = await input({
-      message: print.__('Enter JSON payload:'),
+      message: print.write('Enter JSON payload:'),
       validate: text => {
-        if (isEmpty(text)) return print.__('Payload is required')
+        if (isEmpty(text)) return print.write('Payload is required')
         try {
           const parsed = JSON.parse(text)
           if (!isPlainObject(parsed)) throw new Error()
         } catch (err) {
-          return print.__('Payload must be a valid JSON object')
+          return print.write('Payload must be a valid JSON object')
         }
         return true
       }

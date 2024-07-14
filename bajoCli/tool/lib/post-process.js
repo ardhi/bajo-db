@@ -1,10 +1,10 @@
 const conns = []
 
 async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
-  const { print, getConfig, saveAsDownload, importPkg, spinner, startPlugin } = this.bajo.helper
+  const { print, getConfig, saveAsDownload, importPkg, spinner, startPlugin } = this.app.bajo
   const { prettyPrint } = this.bajoCli.helper
   const { getInfo } = this.bajoDb.helper
-  const { find, get } = this.bajo.helper._
+  const { find, get } = this.app.bajo.lib._
   const [stripAnsi, confirm] = await importPkg('bajoCli:strip-ansi', 'bajoCli:@inquirer/confirm')
   const config = getConfig()
   if (!noConfirmation && config.confirmation === false) noConfirmation = true
@@ -14,7 +14,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   if (!schema) return print.fail('No schema found!', { exit: config.tool })
   let cont = true
   if (!noConfirmation) {
-    const answer = await confirm({ message: print.__('Are you sure to continue?'), default: false })
+    const answer = await confirm({ message: print.write('Are you sure to continue?'), default: false })
     if (!answer) {
       print.fail('Aborted!')
       cont = false

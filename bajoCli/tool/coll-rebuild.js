@@ -1,9 +1,9 @@
 import addFixtures from '../../lib/add-fixtures.js'
 
 async function collRebuild ({ path, args }) {
-  const { importPkg, print, getConfig, spinner, startPlugin, outmatch } = this.bajo.helper
+  const { importPkg, print, getConfig, spinner, startPlugin, outmatch } = this.app.bajo
   const { getInfo, collExists, collDrop, collCreate } = this.bajoDb.helper
-  const { isEmpty, map, trim } = this.bajo.helper._
+  const { isEmpty, map, trim } = this.app.bajo.lib._
   const [input, confirm, boxen] = await importPkg('bajoCli:@inquirer/input',
     'bajoCli:@inquirer/confirm', 'bajoCli:boxen')
   const config = getConfig()
@@ -12,7 +12,7 @@ async function collRebuild ({ path, args }) {
   if (isEmpty(schemas)) return print.fail('No schema found!', { exit: config.tool })
   if (isEmpty(names)) {
     names = await input({
-      message: print.__('Enter schema name(s), separated by space:'),
+      message: print.write('Enter schema name(s), separated by space:'),
       default: '*'
     })
   }
@@ -20,9 +20,9 @@ async function collRebuild ({ path, args }) {
   names = schemas.filter(isMatch)
   if (names.length === 0) return print.fail('No schema matched', true, { exit: config.tool })
   names = names.sort()
-  console.log(boxen(names.join(' '), { title: print.__('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
+  console.log(boxen(names.join(' '), { title: print.write('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
   const answer = await confirm({
-    message: print.__('The above mentioned schema(s) will be rebuilt as collection. Continue?'),
+    message: print.write('The above mentioned schema(s) will be rebuilt as collection. Continue?'),
     default: false
   })
   if (!answer) return print.fail('Aborted!', { exit: config.tool })

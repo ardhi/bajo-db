@@ -1,6 +1,6 @@
 async function beforeResourceMerge (lng, content) {
-  const { eachPlugins, readConfig } = this.bajo.helper
-  const { merge } = this.bajo.helper._
+  const { eachPlugins, readConfig } = this.app.bajo
+  const { merge } = this.app.bajo.lib._
   await eachPlugins(async function ({ file }) {
     const item = await readConfig(file)
     merge(content, item)

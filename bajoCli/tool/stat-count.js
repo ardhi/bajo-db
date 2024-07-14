@@ -1,8 +1,8 @@
 import postProcess from './lib/post-process.js'
 
 async function statCount ({ path, args, options }) {
-  const { importPkg, print, getConfig } = this.bajo.helper
-  const { isEmpty, map, get } = this.bajo.helper._
+  const { importPkg, print, getConfig } = this.app.bajo
+  const { isEmpty, map, get } = this.app.bajo.lib._
   const [select, input] = await importPkg('bajoCli:@inquirer/select', 'bajoCli:@inquirer/input')
   const schemas = get(this, 'bajoDb.schemas', [])
   const config = getConfig()
@@ -10,13 +10,13 @@ async function statCount ({ path, args, options }) {
   let [schema, query] = args
   if (isEmpty(schema)) {
     schema = await select({
-      message: print.__('Please select a schema:'),
+      message: print.write('Please select a schema:'),
       choices: map(schemas, s => ({ value: s.name }))
     })
   }
   if (isEmpty(query)) {
     query = await input({
-      message: print.__('Please enter a query (if any):')
+      message: print.write('Please enter a query (if any):')
     })
   }
   const filter = { query }

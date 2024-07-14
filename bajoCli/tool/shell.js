@@ -15,20 +15,20 @@ const mods = [
 ]
 
 async function shell ({ path, args, options }) {
-  const { importPkg, print, importModule, resolvePath, currentLoc } = this.bajo.helper
+  const { importPkg, print, importModule, resolvePath, currentLoc } = this.app.bajo
   const prompts = await importPkg('bajoCli:@inquirer/prompts')
-  const { map, find, repeat, kebabCase } = this.bajo.helper._
+  const { map, find, repeat, kebabCase } = this.app.bajo.lib._
   const { select, Separator, confirm } = prompts
   const choices = map(mods, m => m === '-' ? new Separator() : ({ value: m.method }))
   const dir = currentLoc(import.meta).dir
   for (;;) {
     const method = await select({
-      message: print.__('Select method:'),
+      message: print.write('Select method:'),
       choices
     })
     if (method === 'quit') {
       const answer = await confirm({
-        message: print.__('Are you sure to quit?')
+        message: print.write('Are you sure to quit?')
       })
       if (!answer) continue
       print.info('Quitting now, have a nice day!')
