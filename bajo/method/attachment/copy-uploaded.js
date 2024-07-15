@@ -1,13 +1,17 @@
 import path from 'path'
 
-async function copyUploaded (name, id, { req, setField, setFile, mimeType, stats } = {}) {
-  const { fs } = this.app.bajo
-  const { attachmentPreCheck, attachmentCreate } = this.bajoDb.helper
-  name = attachmentPreCheck(name)
-  if (!name) return
-  if (!this.bajoWeb) return
-  const { getUploadedFiles } = this.bajoWeb.helper
-  const { dir, files } = await getUploadedFiles(req.id, false, true)
+async function copyUploaded (name, id, { req, setField, setFile, mimeType, stats, silent = true } = {}) {
+  const { fs } = this.app.bajo.lib
+  name = this.attachmentPreCheck(name)
+  if (!name) {
+    if (silent) return
+    throw this.error('Name must be provided')
+  }
+  if (!this.bajoWeb) {
+    if (silent) return
+    throw this.error('Plugin \'%s\' is missing')
+  }
+  const { dir, files } = await this.bajoWeb.getUploadedFiles(req.id, false, true)
   const result = []
   if (files.length === 0) return result
   for (const f of files) {
@@ -16,7 +20,7 @@ async function copyUploaded (name, id, { req, setField, setFile, mimeType, stats
     field = setField ?? field
     const file = setFile ?? parts.join('@')
     const opts = { source: f, field, file, mimeType, stats, req }
-    const rec = await attachmentCreate(name, id, opts)
+    const rec = await this.attachmentCreate(name, id, opts)
     delete rec.dir
     result.push(rec)
     if (setField || setFile) break

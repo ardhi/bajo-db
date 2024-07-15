@@ -5,9 +5,8 @@ import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function create (name, input, opts = {}) {
-  const { generateId, runHook, print, isSet } = this.app.bajo
-  const { pickRecord, sanitizeBody, collExists } = this.bajoDb.helper
-  const { clearColl } = this.bajoDb.cache ?? {}
+  const { generateId, runHook, isSet } = this.app.bajo
+  const { clearColl } = this.cache ?? {}
   const { get, find, forOwn, cloneDeep } = this.app.bajo.lib._
   const options = cloneDeep(opts)
   options.dataOnly = options.dataOnly ?? true
@@ -15,14 +14,14 @@ async function create (name, input, opts = {}) {
   const { fields, dataOnly, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, hidden } = options
   options.truncateString = options.truncateString ?? true
   options.dataOnly = false
-  await collExists(name, true)
+  await this.collExists(name, true)
   const { handler, schema } = await resolveMethod.call(this, name, 'record-create', options)
   const idField = find(schema.properties, { name: 'id' })
   if (!isSet(input.id)) {
     if (idField.type === 'string') input.id = generateId()
     else if (['integer', 'smallint'].includes(idField.type) && !idField.autoInc) input.id = generateId('int')
   }
-  let body = noSanitize ? input : await sanitizeBody({ body: input, schema, strict: true })
+  let body = noSanitize ? input : await this.sanitizeBody({ body: input, schema, strict: true })
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordCreate', name, body, options)
     await runHook(`bajoDb.${name}:onBeforeRecordCreate`, body, options)
@@ -42,7 +41,7 @@ async function create (name, input, opts = {}) {
     record = await handler.call(this, { schema, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id: body.id, body, options, action: 'create' })
-      if (options.req.flash) options.req.flash('dbsuccess', { message: print.write('Record successfully created', { ns: 'bajoDb' }), record })
+      if (options.req.flash) options.req.flash('dbsuccess', { message: this.print.write('Record successfully created', { ns: 'bajoDb' }), record })
     }
   } catch (err) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
@@ -55,7 +54,7 @@ async function create (name, input, opts = {}) {
   }
   if (clearColl) await clearColl({ coll: name, body, options, record })
   if (noResult) return
-  record.data = await pickRecord({ record: record.data, fields, schema, hidden })
+  record.data = await this.pickRecord({ record: record.data, fields, schema, hidden })
   return dataOnly ? record.data : record
 }
 

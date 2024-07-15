@@ -5,8 +5,7 @@ import execValidation from '../../../lib/exec-validation.js'
 import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function update (name, id, input, opts = {}) {
-  const { runHook, print, isSet } = this.app.bajo
-  const { pickRecord, sanitizeBody, collExists, sanitizeId } = this.bajoDb.helper
+  const { runHook, isSet } = this.app.bajo
   const { clearColl } = this.bajoDb.cache ?? {}
   const { get, forOwn, find, cloneDeep } = this.app.bajo.lib._
   const options = cloneDeep(opts)
@@ -15,10 +14,10 @@ async function update (name, id, input, opts = {}) {
   const { fields, dataOnly, noHook, noValidation, noCheckUnique, noFeatureHook, noResult, noSanitize, partial = true, hidden } = options
   options.dataOnly = true
   options.truncateString = options.truncateString ?? true
-  await collExists(name, true)
+  await this.collExists(name, true)
   const { handler, schema } = await resolveMethod.call(this, name, 'record-update')
-  id = sanitizeId(id, schema)
-  let body = noSanitize ? input : await sanitizeBody({ body: input, schema, partial, strict: true })
+  id = this.sanitizeId(id, schema)
+  let body = noSanitize ? input : await this.sanitizeBody({ body: input, schema, partial, strict: true })
   delete body.id
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordUpdate', name, id, body, options)
@@ -40,7 +39,7 @@ async function update (name, id, input, opts = {}) {
     record = await handler.call(this, { schema, id, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, body, options, action: 'update' })
-      if (options.req.flash) options.req.flash('dbsuccess', { message: print.write('Record successfully updated', { ns: 'bajoDb' }), record })
+      if (options.req.flash) options.req.flash('dbsuccess', { message: this.print.write('Record successfully updated', { ns: 'bajoDb' }), record })
     }
   } catch (err) {
     if (get(options, 'req.flash')) options.req.flash('dberr', err)
@@ -53,8 +52,8 @@ async function update (name, id, input, opts = {}) {
   }
   if (clearColl) await clearColl({ coll: name, id, body: nbody, options, record })
   if (noResult) return
-  record.oldData = await pickRecord({ record: record.oldData, fields, schema, hidden })
-  record.data = await pickRecord({ record: record.data, fields, schema, hidden })
+  record.oldData = await this.pickRecord({ record: record.oldData, fields, schema, hidden })
+  record.data = await this.pickRecord({ record: record.data, fields, schema, hidden })
   return dataOnly ? record.data : record
 }
 

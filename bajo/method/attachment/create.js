@@ -1,13 +1,12 @@
 import mergeAttachmentInfo from '../../../lib/merge-attachment-info.js'
 
 async function create (name, id, options = {}) {
-  const { fs, error } = this.app.bajo
-  const { attachmentPreCheck, attachmentGetPath } = this.bajoDb.helper
-  name = attachmentPreCheck(name)
+  const { fs } = this.app.bajo.lib
+  name = this.attachmentPreCheck(name)
   if (!name) return
   const { source, field, file } = options
-  if (!source) throw error('Invalid source')
-  const baseDir = await attachmentGetPath(name, id, field, file, { dirOnly: true })
+  if (!source) throw this.error('Invalid source')
+  const baseDir = await this.attachmentGetPath(name, id, field, file, { dirOnly: true })
   const { fullPath, stats, mimeType, req } = options
 
   let dir = `${baseDir}/${field}`

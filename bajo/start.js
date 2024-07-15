@@ -9,12 +9,12 @@ async function start (conns = 'all', noRebuild = true) {
   for (const c of conns) {
     const [ns] = breakNsPath(c.type)
     const schemas = filter(this.schemas, { connection: c.name })
-    const mod = await importModule(`${ns}:/bajoDb/boot/instantiation.js`)
-    await mod.call(this, { connection: c, noRebuild, schemas })
+    const mod = await importModule(`${ns}:/bajoDb/boot/instantiate.js`)
+    await mod.call(this.app[ns], { connection: c, noRebuild, schemas })
     for (const s of schemas) {
       if (c.memory) await addFixtures.call(this, s.name)
     }
-    this.log.trace('Driver \'%s@%s\' instantiated', c.driver, c.name)
+    this.log.trace('- Driver \'%s:%s\' instantiated', c.driver, c.name)
   }
 }
 

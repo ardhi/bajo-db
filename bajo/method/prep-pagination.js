@@ -1,8 +1,6 @@
 function buildPageSkipLimit (filter) {
-  const { getConfig } = this.app.bajo
-  const cfg = getConfig('bajoDb')
-  let limit = parseInt(filter.limit) || cfg.defaults.filter.limit
-  if (limit > cfg.defaults.filter.maxLimit) limit = cfg.defaults.filter.maxLimit
+  let limit = parseInt(filter.limit) || this.config.defaults.filter.limit
+  if (limit > this.config.defaults.filter.maxLimit) limit = this.config.defaults.filter.maxLimit
   if (limit < 1) limit = 1
   let page = parseInt(filter.page) || 1
   if (page < 1) page = 1
@@ -16,13 +14,11 @@ function buildPageSkipLimit (filter) {
 }
 
 function buildSort (input, schema, allowSortUnindexed) {
-  const { getConfig, error } = this.app.bajo
   const { isEmpty, map, each, isPlainObject, isString, trim, filter, keys } = this.app.bajo.lib._
-  const cfg = getConfig('bajoDb')
   let sort
   if (schema && isEmpty(input)) {
     const columns = map(schema.properties, 'name')
-    each(cfg.defaults.filter.sort, s => {
+    each(this.config.defaults.filter.sort, s => {
       const [col] = s.split(':')
       if (columns.includes(col)) {
         input = s
@@ -49,8 +45,8 @@ function buildSort (input, schema, allowSortUnindexed) {
       })
       const items = keys(sort)
       each(items, i => {
-        if (!indexes.includes(i) && !allowSortUnindexed) throw error('Sort on unindexed field: \'%s@%s\'', i, schema.name)
-        // if (schema.fullText.fields.includes(i)) throw error('Can\'t sort on full-text index: \'%s@%s\'', i, schema.name)
+        if (!indexes.includes(i) && !allowSortUnindexed) throw this.error('Sort on unindexed field: \'%s@%s\'', i, schema.name)
+        // if (schema.fullText.fields.includes(i)) throw this.error('Can\'t sort on full-text index: \'%s@%s\'', i, schema.name)
       })
     }
   }

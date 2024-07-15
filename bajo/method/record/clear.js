@@ -2,8 +2,7 @@ import resolveMethod from '../../../lib/resolve-method.js'
 
 async function clear (name, opts = {}) {
   const { runHook } = this.app.bajo
-  const { collExists } = this.bajoDb.helper
-  await collExists(name, true)
+  await this.collExists(name, true)
   const { cloneDeep } = this.app.bajo.lib._
   const options = cloneDeep(opts)
   const { noHook } = options

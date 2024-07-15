@@ -2,8 +2,7 @@ const conns = []
 
 async function postProcess ({ handler, params, path, processMsg, noConfirmation, options = {} } = {}) {
   const { print, getConfig, saveAsDownload, importPkg, spinner, startPlugin } = this.app.bajo
-  const { prettyPrint } = this.bajoCli.helper
-  const { getInfo } = this.bajoDb.helper
+  const { prettyPrint } = this.app.bajoCli.helper
   const { find, get } = this.app.bajo.lib._
   const [stripAnsi, confirm] = await importPkg('bajoCli:strip-ansi', 'bajoCli:@inquirer/confirm')
   const config = getConfig()
@@ -22,7 +21,7 @@ async function postProcess ({ handler, params, path, processMsg, noConfirmation,
   }
   if (!cont) return
   const spin = spinner().start(`${processMsg}...`)
-  const { connection } = getInfo(schema)
+  const { connection } = this.getInfo(schema)
   if (!conns.includes(connection.name)) {
     await startPlugin('bajoDb', connection.name)
     conns.push(connection.name)

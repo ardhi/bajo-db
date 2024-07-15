@@ -1,27 +1,22 @@
 async function connection ({ path, args }) {
-  const { importPkg, print, getConfig, saveAsDownload } = this.app.bajo
-  const { prettyPrint } = this.bajoCli.helper
-  const { get, isEmpty, map, find } = this.app.bajo.lib._
-  const [stripAnsi, select] = await importPkg('bajoCli:strip-ansi', 'bajoCli:@inquirer/select')
-  const config = getConfig()
-  const connections = get(this, 'bajoDb.config.connections', [])
-  if (isEmpty(connections)) return print.fail('No connection found!', { exit: config.tool })
+  const { importPkg } = this.app.bajo
+  const { isEmpty, map, find } = this.app.bajo.lib._
+  const select = await importPkg('bajoCli:@inquirer/select')
+  const { getOutputFormat, writeOutput } = this.app.bajoCli
+  const format = getOutputFormat()
+  if (isEmpty(this.connections)) return this.print.fail('No connection found!', { exit: this.app.bajo.toolMode })
   let name = args[0]
   if (isEmpty(name)) {
-    const choices = map(connections, s => ({ value: s.name }))
+    const choices = map(this.connections, s => ({ value: s.name }))
     name = await select({
-      message: print.write('Please choose a connection:'),
+      message: this.print.write('Please choose a connection:'),
       choices
     })
   }
-  let result = find(connections, { name })
-  if (!result) return print.fail('Can\'t find %s named \'%s\'', print.write('connection'), name, { exit: config.tool })
-  print.info('Done!')
-  result = config.pretty ? (await prettyPrint(result, false, false)) : JSON.stringify(result, null, 2)
-  if (config.save) {
-    const file = `/${path}.${config.pretty ? 'txt' : 'json'}`
-    await saveAsDownload(file, stripAnsi(result))
-  } else console.log(result)
+  const result = find(this.connections, { name })
+  if (!result) return this.print.fail('Can\'t find %s named \'%s\'', this.print.write('connection'), name, { exit: this.app.bajo.toolMode })
+  this.print.info('Done!')
+  await writeOutput(result, path, format)
 }
 
 export default connection

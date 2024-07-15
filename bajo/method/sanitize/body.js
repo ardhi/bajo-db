@@ -1,6 +1,5 @@
 async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
   const { isSet, dayjs } = this.app.bajo
-  const { sanitizeDate } = this.bajoDb.helper
   const { has, get, isString, isNumber } = this.app.bajo.lib._
   const result = {}
   for (const p of schema.properties) {
@@ -45,7 +44,7 @@ async function sanitizeBody ({ body = {}, schema = {}, partial, strict }) {
       } else {
         for (const t of ['datetime', 'date|YYYY-MM-DD', 'time|HH:mm:ss']) {
           const [type, input] = t.split('|')
-          if (p.type === type) result[p.name] = sanitizeDate(body[p.name], { input })
+          if (p.type === type) result[p.name] = this.sanitizeDate(body[p.name], { input })
         }
       }
     } else {

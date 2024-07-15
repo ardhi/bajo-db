@@ -1,6 +1,5 @@
 async function transform ({ record, schema, hidden = [] } = {}) {
   const { dayjs } = this.app.bajo
-  const { sanitizeBody } = this.bajoDb.helper
   if (record._id) {
     record.id = record._id
     delete record._id
@@ -15,7 +14,7 @@ async function transform ({ record, schema, hidden = [] } = {}) {
       case 'date': result[p.name] = dayjs(record[p.name]).format('YYYY-MM-DD'); break
     }
   }
-  return await sanitizeBody({ body: result, schema, partial: true, ignoreNull: true })
+  return await this.sanitizeBody({ body: result, schema, partial: true, ignoreNull: true })
 }
 
 async function pickRecord ({ record, fields, schema = {}, hidden = [] } = {}) {

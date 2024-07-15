@@ -9,14 +9,12 @@ async function updatedAt (opts = {}) {
     },
     hook: {
       beforeCreate: async function ({ body }) {
-        const { isSet } = this.app.bajo
         const now = new Date()
-        if (opts.overwrite || !isSet(body[opts.fieldName])) body[opts.fieldName] = now
+        if (opts.overwrite || !this.app.bajo.isSet(body[opts.fieldName])) body[opts.fieldName] = now
       },
       beforeUpdate: async function ({ body }) {
-        const { isSet } = this.app.bajo
         const now = new Date()
-        if (opts.overwrite || !isSet(body[opts.fieldName])) body[opts.fieldName] = now
+        if (opts.overwrite || !this.app.bajo.isSet(body[opts.fieldName])) body[opts.fieldName] = now
       }
     }
   }

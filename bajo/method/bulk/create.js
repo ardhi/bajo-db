@@ -4,19 +4,18 @@ import execFeatureHook from '../../../lib/exec-feature-hook.js'
 
 async function create (name, inputs, options) {
   const { generateId, runHook, isSet } = this.app.bajo
-  const { sanitizeBody, collExists } = this.bajoDb.helper
-  const { clearColl } = this.bajoDb.cache ?? {}
+  const { clearColl } = this.cache ?? {}
   const { find } = this.app.bajo.lib._
   options.dataOnly = options.dataOnly ?? true
   options.truncateString = options.truncateString ?? true
   const { noHook, noValidation } = options
-  await collExists(name, true)
+  await this.collExists(name, true)
   const { handler, schema } = await buildBulkAction.call(this, name, 'create', options)
   const idField = find(schema.properties, { name: 'id' })
   const bodies = [...inputs]
   for (let b of bodies) {
     b.id = b.id ?? generateId(idField.type === 'integer' ? 'int' : undefined)
-    b = await sanitizeBody({ body: b, schema, strict: true })
+    b = await this.sanitizeBody({ body: b, schema, strict: true })
     if (!noValidation) b = await execValidation.call(this, { noHook, name, b, options })
   }
   if (!noHook) {

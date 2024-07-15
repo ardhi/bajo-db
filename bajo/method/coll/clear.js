@@ -2,8 +2,7 @@ import resolveMethod from '../../../lib/resolve-method.js'
 
 async function clear (name, options = {}) {
   const { runHook } = this.app.bajo
-  const { collExists } = this.bajoDb.helper
-  await collExists(name, true)
+  await this.collExists(name, true)
   const { noHook } = options
   const { handler, schema } = await resolveMethod.call(this, name, 'coll-clear')
   if (!noHook) {

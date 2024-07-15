@@ -1,11 +1,11 @@
 import mergeAttachmentInfo from '../../../lib/merge-attachment-info.js'
 
 async function find (name, id, options = {}) {
-  const { fastGlob, fs, getPluginDataDir } = this.app.bajo
-  const { attachmentPreCheck } = this.bajoDb.helper
-  name = attachmentPreCheck(name)
+  const { fastGlob, fs } = this.app.bajo.lib
+  const { getPluginDataDir } = this.app.bajo
+  name = this.attachmentPreCheck(name)
   if (!name) return
-  const dir = `${getPluginDataDir('bajoDb')}/attachment/${name}/${id}`
+  const dir = `${getPluginDataDir(this.name)}/attachment/${name}/${id}`
   if (!fs.existsSync(dir)) return []
   const files = await fastGlob(`${dir}/**/*`)
   const { fullPath, stats, mimeType } = options
