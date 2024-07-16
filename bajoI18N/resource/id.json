@@ -58,6 +58,7 @@
   "Full text index need integer type primary id in '%s@%s'": "Full text index need integer type primary id in '%s@%s'",
   "Unsupported aggregate '%s'": "Unsupported aggregate '%s'",
   "Unsupported %s '%s' for '%s@%s'. Allowed choices: %s": "Unsupported %s '%s' for '%s@%s'. Allowed choices: %s",
+  "Method '%s@%s' is disabled": "Metode '%s@%s' dinonaktifkan",
   "field": {
     "id": "ID",
     "name": "Nama",
