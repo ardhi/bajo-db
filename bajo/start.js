@@ -1,5 +1,3 @@
-import addFixtures from '../lib/add-fixtures.js'
-
 async function start (conns = 'all', noRebuild = true) {
   const { importModule, breakNsPath } = this.app.bajo
   const { find, filter, isString, map } = this.app.bajo.lib._
@@ -11,9 +9,6 @@ async function start (conns = 'all', noRebuild = true) {
     const schemas = filter(this.schemas, { connection: c.name })
     const mod = await importModule(`${ns}:/bajoDb/boot/instantiate.js`)
     await mod.call(this.app[ns], { connection: c, noRebuild, schemas })
-    for (const s of schemas) {
-      if (c.memory) await addFixtures.call(this, s.name)
-    }
     this.log.trace('- Driver \'%s:%s\' instantiated', c.driver, c.name)
   }
 }

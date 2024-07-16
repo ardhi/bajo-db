@@ -6,12 +6,12 @@ async function clear (name, opts = {}) {
   const { cloneDeep } = this.app.bajo.lib._
   const options = cloneDeep(opts)
   const { noHook } = options
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-clear')
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-clear')
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordClear', name, options)
     await runHook(`bajoDb.${name}:onBeforeRecordClear`, options)
   }
-  const resp = await handler.call(this, { schema, options })
+  const resp = await handler.call(this.app[driver.ns], { schema, options })
   if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordClear`, options, resp)
     await runHook('bajoDb:onAfterRecordClear', name, options, resp)

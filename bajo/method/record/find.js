@@ -11,7 +11,7 @@ async function find (name, filter = {}, opts = {}) {
   options.count = options.count ?? false
   options.dataOnly = false
   await this.collExists(name, true)
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-find')
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-find')
   filter.query = await this.buildQuery({ filter, schema, options }) ?? {}
   filter.match = this.buildMatch({ input: filter.match, schema, options }) ?? {}
   if (!noHook) {
@@ -25,7 +25,7 @@ async function find (name, filter = {}, opts = {}) {
       return dataOnly ? cachedResult.data : cachedResult
     }
   }
-  const records = await handler.call(this, { schema, filter, options })
+  const records = await handler.call(this.app[driver.ns], { schema, filter, options })
   if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordFind`, filter, options, records)
     await runHook('bajoDb:onAfterRecordFind', name, filter, options, records)

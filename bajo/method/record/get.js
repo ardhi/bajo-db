@@ -9,7 +9,7 @@ async function get (name, id, opts = {}) {
   options.dataOnly = options.dataOnly ?? true
   const { fields, dataOnly, noHook, noCache, hidden = [] } = options
   await this.collExists(name, true)
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-get')
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-get')
   id = this.sanitizeId(id, schema)
   options.dataOnly = false
   if (!noHook) {
@@ -23,7 +23,7 @@ async function get (name, id, opts = {}) {
       return dataOnly ? cachedResult.data : cachedResult
     }
   }
-  const record = await handler.call(this, { schema, id, options })
+  const record = await handler.call(this.app[driver.ns], { schema, id, options })
   if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordGet`, id, options, record)
     await runHook('bajoDb:onAfterRecordGet', name, id, options, record)

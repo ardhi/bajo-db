@@ -15,7 +15,7 @@ async function create (name, input, opts = {}) {
   options.truncateString = options.truncateString ?? true
   options.dataOnly = false
   await this.collExists(name, true)
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-create', options)
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-create', options)
   const idField = find(schema.properties, { name: 'id' })
   if (!isSet(input.id)) {
     if (idField.type === 'string') input.id = generateId()
@@ -38,7 +38,7 @@ async function create (name, input, opts = {}) {
       if (options.truncateString && isSet(v) && prop && ['string', 'text'].includes(prop.type)) v = v.slice(0, prop.maxLength)
       nbody[k] = v
     })
-    record = await handler.call(this, { schema, body: nbody, options })
+    record = await handler.call(this.app[driver.ns], { schema, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id: body.id, body, options, action: 'create' })
       if (options.req.flash) options.req.flash('dbsuccess', { message: this.print.write('Record successfully created', { ns: 'bajoDb' }), record })

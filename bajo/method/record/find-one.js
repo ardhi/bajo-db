@@ -12,7 +12,7 @@ async function findOne (name, filter = {}, opts = {}) {
   filter.limit = 1
   options.count = false
   options.dataOnly = false
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-find')
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-find')
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordFindOne', name, filter, options)
     await runHook(`bajoDb.${name}:onBeforeRecordFindOne`, filter, options)
@@ -24,7 +24,7 @@ async function findOne (name, filter = {}, opts = {}) {
       return dataOnly ? cachedResult.data : cachedResult
     }
   }
-  const record = await handler.call(this, { schema, filter, options })
+  const record = await handler.call(this.app[driver.ns], { schema, filter, options })
   record.data = record.data[0]
   if (!noHook) {
     await runHook(`bajoDb.${name}:onAfterRecordFindOne`, filter, options, record)

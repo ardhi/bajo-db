@@ -10,13 +10,13 @@ async function remove (name, id, opts = {}) {
   const { fields, dataOnly, noHook, noResult, hidden } = options
   options.dataOnly = false
   await this.collExists(name, true)
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-remove')
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-remove')
   id = this.sanitizeId(id, schema)
   if (!noHook) {
     await runHook('bajoDb:onBeforeRecordRemove', name, id, options)
     await runHook(`bajoDb.${name}:onBeforeRecordRemove`, id, options)
   }
-  const record = await handler.call(this, { schema, id, options })
+  const record = await handler.call(this.app[driver.ns], { schema, id, options })
   if (options.req) {
     if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, options, action: 'remove' })
     if (options.req.flash) options.req.flash('dbsuccess', { message: this.print.write('Record successfully removed', { ns: 'bajoDb' }), record })

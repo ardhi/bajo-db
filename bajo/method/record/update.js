@@ -15,7 +15,7 @@ async function update (name, id, input, opts = {}) {
   options.dataOnly = true
   options.truncateString = options.truncateString ?? true
   await this.collExists(name, true)
-  const { handler, schema } = await resolveMethod.call(this, name, 'record-update')
+  const { handler, schema, driver } = await resolveMethod.call(this, name, 'record-update')
   id = this.sanitizeId(id, schema)
   let body = noSanitize ? input : await this.sanitizeBody({ body: input, schema, partial, strict: true })
   delete body.id
@@ -36,7 +36,7 @@ async function update (name, id, input, opts = {}) {
   })
   delete nbody.id
   try {
-    record = await handler.call(this, { schema, id, body: nbody, options })
+    record = await handler.call(this.app[driver.ns], { schema, id, body: nbody, options })
     if (options.req) {
       if (options.req.file) await handleAttachmentUpload.call(this, { name: schema.name, id, body, options, action: 'update' })
       if (options.req.flash) options.req.flash('dbsuccess', { message: this.print.write('Record successfully updated', { ns: 'bajoDb' }), record })
