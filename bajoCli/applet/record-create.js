@@ -1,23 +1,17 @@
 import postProcess from './lib/post-process.js'
 
-async function updateRecord ({ path, args, options }) {
+async function createRecord ({ path, args, options }) {
   const { importPkg } = this.app.bajo
   const { isEmpty, map, isPlainObject, get } = this.app.bajo.lib._
   const [input, select, boxen] = await importPkg('bajoCli:@inquirer/input',
     'bajoCli:@inquirer/select', 'bajoCli:boxen')
   const schemas = get(this, 'bajoDb.schemas', [])
-  if (isEmpty(schemas)) return this.print.fail('No schema found!', { exit: this.app.bajo.toolMode })
-  let [schema, id, body] = args
+  if (isEmpty(schemas)) return this.print.fail('No schema found!', { exit: this.app.bajo.applet })
+  let [schema, body] = args
   if (isEmpty(schema)) {
     schema = await select({
       message: this.print.write('Please select a schema:'),
       choices: map(schemas, s => ({ value: s.name }))
-    })
-  }
-  if (isEmpty(id)) {
-    id = await input({
-      message: this.print.write('Enter record ID:'),
-      validate: text => isEmpty(text) ? this.print.write('ID is required') : true
     })
   }
   if (isEmpty(body)) {
@@ -39,10 +33,10 @@ async function updateRecord ({ path, args, options }) {
   try {
     payload = JSON.parse(body)
   } catch (err) {
-    return this.print.fail('Invalid payload syntax', { exit: this.app.bajo.toolMode })
+    return this.print.fail('Invalid payload syntax', { exit: this.app.bajo.applet })
   }
   console.log(boxen(JSON.stringify(payload, null, 2), { title: schema, padding: 0.5, borderStyle: 'round' }))
-  await postProcess.call(this, { handler: 'recordUpdate', params: [schema, id, payload], path, processMsg: 'Updating record', options })
+  await postProcess.call(this, { handler: 'recordCreate', params: [schema, payload], path, processMsg: 'Creating record', options })
 }
 
-export default updateRecord
+export default createRecord

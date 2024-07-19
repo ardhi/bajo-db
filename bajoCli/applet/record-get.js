@@ -5,7 +5,7 @@ async function getRecord ({ path, args, options }) {
   const { isEmpty, map, get } = this.app.bajo.lib._
   const [input, select] = await importPkg('bajoCli:@inquirer/input', 'bajoCli:@inquirer/select')
   const schemas = get(this, 'bajoDb.schemas', [])
-  if (isEmpty(schemas)) return this.print.fail('No schema found!', { exit: this.app.bajo.toolMode })
+  if (isEmpty(schemas)) return this.print.fail('No schema found!', { exit: this.app.bajo.applet })
   let [schema, id] = args
   if (isEmpty(schema)) {
     schema = await select({

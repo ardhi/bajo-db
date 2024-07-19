@@ -8,7 +8,7 @@ async function collRebuild ({ path, args }) {
     'bajoCli:@inquirer/confirm', 'bajoCli:boxen')
   const schemas = map(this.bajoDb.schemas, 'name')
   let names = args.join(' ')
-  if (isEmpty(schemas)) return this.print.fail('No schema found!', { exit: this.app.bajo.toolMode })
+  if (isEmpty(schemas)) return this.print.fail('No schema found!', { exit: this.app.bajo.applet })
   if (isEmpty(names)) {
     names = await input({
       message: this.print.write('Enter schema name(s), separated by space:'),
@@ -17,14 +17,14 @@ async function collRebuild ({ path, args }) {
   }
   const isMatch = outmatch(map(names.split(' '), m => trim(m)))
   names = schemas.filter(isMatch)
-  if (names.length === 0) return this.print.fail('No schema matched', true, { exit: this.app.bajo.toolMode })
+  if (names.length === 0) return this.print.fail('No schema matched', true, { exit: this.app.bajo.applet })
   names = names.sort()
   console.log(boxen(names.join(' '), { title: this.print.write('Schema (%d)', names.length), padding: 0.5, borderStyle: 'round' }))
   const answer = await confirm({
     message: this.print.write('The above mentioned schema(s) will be rebuilt as collection. Continue?'),
     default: false
   })
-  if (!answer) return this.print.fail('Aborted!', { exit: this.app.bajo.toolMode })
+  if (!answer) return this.print.fail('Aborted!', { exit: this.app.bajo.applet })
   const conns = []
   for (const s of names) {
     const { connection } = this.getInfo(s)
@@ -66,7 +66,7 @@ async function collRebuild ({ path, args }) {
       }
       result.succed++
     } catch (err) {
-      if (this.app.bajo.config.log.toolMode && this.app.bajo.config.log.level === 'trace') console.error(err)
+      if (this.app.bajo.config.log.applet && this.app.bajo.config.log.level === 'trace') console.error(err)
       spin.fail('Error on creating \'%s\': %s', schema.name, err.message)
       result.failed++
     }
