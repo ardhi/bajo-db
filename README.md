@@ -6,7 +6,7 @@ Plugin name: **bajoDb**, alias: **db**
 
 > <br />**Attention**: I do NOT accept any pull request at the moment, thanks!<br /><br />
 
-DB connectivity, tools, ORM/ODM support for [Bajo Framework](https://github.com/ardhi/bajo).
+Database connectivity, tools, ORM/ODM support for [Bajo](https://github.com/ardhi/bajo).
 
 ## Installation
 
